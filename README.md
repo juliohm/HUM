@@ -13,6 +13,15 @@ It's made available under the GPLv3 license.
 
 For any questions or suggestions, please contact [Júlio Hoffimann](julio.hoffimann@ufpe.br).
 
+Installation
+------------
+
+Add this directory to your `PYTHONPATH`:
+
+```bash
+export PYTHONPATH=$PYTHONPATH:/home/julio/HUM
+```
+
 REFERENCES
 ----------
 
