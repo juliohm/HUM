@@ -20,7 +20,20 @@
 ## Author: Júlio Hoffimann Mendes
 
 import numpy as np
+import multiprocessing
 from scipy.linalg import eigh, norm
+
+# Auxiliary pickable functions for the multiprocessing module. A hack
+# for calling the object method from outside the class definition.
+def _call_prediction(args):
+    obj = args[0]
+    return obj._predict(*args[1:])
+
+
+def _call_denoise(args):
+    obj = args[0]
+    return obj._denoise(*args[1:])
+
 
 class KernelPCA(object):
     """
@@ -144,10 +157,10 @@ class KernelPCA(object):
         if csi.ndim == 1:
             return self._predict(csi, tol, ntries)
         else:
-            res = np.empty([self.X.shape[0],csi.shape[1]])
-            for col in xrange(csi.shape[1]):
-                res[:,col] = self._predict(csi[:,col], tol, ntries)
-            return res
+            # reconstruct each column in parallel
+            pool = multiprocessing.Pool(8)
+            res = pool.map(_call_prediction, [(self, col, tol, ntries) for col in csi.T])
+            return np.array(res).T
 
 
     def _predict(self, csi, tol=1e-8, ntries=100):
@@ -193,10 +206,10 @@ class KernelPCA(object):
         if x.ndim == 1:
             return self._denoise(x, tol, ntries)
         else:
-            res = np.empty([self.X.shape[0],x.shape[1]])
-            for col in xrange(x.shape[1]):
-                res[:,col] = self._denoise(x[:,col], tol, ntries)
-            return res
+            # denoise each column in parallel
+            pool = multiprocessing.Pool(8)
+            res = pool.map(_call_denoise, [(self, col, tol, ntries) for col in x.T])
+            return np.array(res).T
 
 
     def _denoise(self, x, tol=1e-8, ntries=100):
