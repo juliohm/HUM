@@ -30,7 +30,7 @@ class KernelPCA(object):
 
       k(x,y) = <x,y> + <x,y>^2 + ... + <x,y>^d
 
-    Such kernels were proposed by Sarma et. al for petroleum engineering
+    Such kernels were purposed by Sarma et. al for petroleum engineering
     problems. They aren't available on any of the Python libraries for
     Machine Learning (sklearn, mlpy, etc.)
 
@@ -42,6 +42,7 @@ class KernelPCA(object):
     ----------
     degree: int, optional
         Degree of the kernel function
+        Default: 1
 
     References
     ----------
@@ -109,6 +110,8 @@ class KernelPCA(object):
         # stores a reference to the data
         self.X = X
 
+        return self.eigbasis.shape[1]
+
 
     def predict(self, csi, tol=1e-8, ntries=100):
         """
@@ -120,14 +123,34 @@ class KernelPCA(object):
 
         Parameters
         ----------
-        csi: array
-            Coordinates for the eigenbasis (ncomps)
+        csi: ndarray or matrix
+            Coordinates for the eigenbasis (ncomps).
+            If a 2D array is passed, it must have ncomps rows. In that case
+            the reconstruction is made for every column of the input matrix
+
+        tol: float, optional
+            Tolerance for fixed point iteration, ignored if degree = 1
+            Default: 1e-8
+
+        ntries: int, optional
+            Maximum number of iterations, ignored if degree = 1
+            Default: 100
 
         Returns
         -------
-        x: array
+        x: ndarray or matrix
             A valid reconstructed image as those found in the data matrix
         """
+        if csi.ndim == 1:
+            return self._predict(csi, tol, ntries)
+        else:
+            res = np.empty([self.X.shape[0],csi.shape[1]])
+            for col in xrange(csi.shape[1]):
+                res[:,col] = self._predict(csi[:,col], tol, ntries)
+            return res
+
+
+    def _predict(self, csi, tol=1e-8, ntries=100):
         A = self.eigbasis
 
         assert A.shape[1] == csi.size, "Invalid number of coordinates"
@@ -149,15 +172,37 @@ class KernelPCA(object):
 
         Parameters
         ----------
-        x: array
+        x: ndarray or matrix
             Valid image to be denoised (nfeatures)
+            If a 2D array is passed, it must have nfeatures rows. In that case
+            every column of the input matrix is denoised separately
+
+        tol: float, optional
+            Tolerance for fixed point iteration, ignored if degree = 1
+            Default: 1e-8
+
+        ntries: int, optional
+            Maximum number of iterations, ignored if degree = 1
+            Default: 100
 
         Returns
         -------
-        x_clean: array
+        x_clean: ndarray or matrix
             Denoised version of x
         """
+        if x.ndim == 1:
+            return self._denoise(x, tol, ntries)
+        else:
+            res = np.empty([self.X.shape[0],x.shape[1]])
+            for col in xrange(x.shape[1]):
+                res[:,col] = self._denoise(x[:,col], tol, ntries)
+            return res
+
+
+    def _denoise(self, x, tol=1e-8, ntries=100):
         A = self.eigbasis
+
+        assert self.X.shape[0] == x.size, "Invalid input image"
 
         # linear kernel has closed form
         if self._d == 1:
