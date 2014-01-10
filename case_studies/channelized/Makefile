@@ -11,20 +11,21 @@ LIBS = -lopmcore -lboost_filesystem -lboost_system -lumfpack -llapack -lblas
 
 .PHONY: all
 all:
+	@echo "$$(tput bold; tput setaf 2)Building OPM-based blackoil simulator$$(tput sgr0)"
 	g++ -std=c++11 -Wall -Wextra -pedantic -O3 -march=native simulator.cpp $(LIBS) -o simulator
 
 .PHONY: clean
 clean:
-	rm simulator
+	rm -f simulator
 
 .PHONY: help
 help:
 	@echo
 	@echo "all: (default target)"
-	@echo "     build the simulator"
+	@echo "     build the reservoir simulator"
 	@echo
 	@echo "clean:"
-	@echo "     delete produced binaries"
+	@echo "     delete binaries"
 	@echo
 	@echo "help:"
 	@echo "     print this message"
