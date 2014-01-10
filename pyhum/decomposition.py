@@ -163,7 +163,7 @@ class KernelPCA(object):
             return np.array(res).T
 
 
-    def _predict(self, csi, tol=1e-8, ntries=100):
+    def _predict(self, csi, tol, ntries):
         A = self.eigbasis
 
         assert A.shape[1] == csi.size, "Invalid number of coordinates"
@@ -212,7 +212,7 @@ class KernelPCA(object):
             return np.array(res).T
 
 
-    def _denoise(self, x, tol=1e-8, ntries=100):
+    def _denoise(self, x, tol, ntries):
         A = self.eigbasis
 
         assert self.X.shape[0] == x.size, "Invalid input image"
