@@ -7,7 +7,7 @@
 #
 # Likewise for the other dependencies (Boost, UMFPACK, LAPACK, BLAS, etc.)
 
-LIBS = -lopmcore -lboost_filesystem -lboost_system -lumfpack -llapack -lblas
+LIBS = -lopmcore -lboost_filesystem -lboost_system -lboost_program_options -lumfpack -llapack -lblas
 
 .PHONY: all
 all:

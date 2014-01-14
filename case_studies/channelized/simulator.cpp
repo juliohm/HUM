@@ -28,6 +28,8 @@
 #include <numeric>
 #include <cstdlib>
 
+#include <boost/program_options.hpp>
+
 #include <opm/core/grid.h>
 #include <opm/core/grid/GridManager.hpp>
 #include <opm/core/io/vtk/writeVtkData.hpp>
@@ -49,15 +51,25 @@
 using namespace Opm;
 using namespace unit;
 using namespace prefix;
+namespace po = boost::program_options;
 
 int main (int argc, char* argv[])
 {
-  if (argc != 2) {
-    std::cout << "Usage: simulator realization.dat" << std::endl;
-    exit(EXIT_FAILURE);
+  std::string infile;
+  po::options_description desc("Allowed options");
+  desc.add_options()
+    ("help,h", "this help message")
+    ("input,f", po::value<std::string>(&infile)->required(), "input filename")
+    ("vtk", "write VTK files")
+    ;
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return EXIT_SUCCESS;
   }
+  po::notify(vm);
 
-  std::string infile {argv[1]};
   auto pos = infile.rfind(".dat");
   if (pos == std::string::npos) {
     std::cout << "File extension *.dat not found. Stop." << std::endl;
@@ -274,14 +286,16 @@ int main (int argc, char* argv[])
   // main loop
   for (int i = 0; i < num_time_steps; ++i) {
 
-    std::ostringstream vtkfilename;
-    vtkfilename << basename << "-results-" << std::setw(3) << std::setfill('0') << i << ".vtu";
-    std::ofstream vtkfile(vtkfilename.str());
-    DataMap dm;
-    dm["saturation"]   = &state.saturation();
-    dm["pressure"]     = &state.pressure();
-    dm["permeability"] = &perm_vec;
-    writeVtkData(grid, dm, vtkfile);
+    if (vm.count("vtk")) {
+      std::ostringstream vtkfilename;
+      vtkfilename << basename << "-results-" << std::setw(3) << std::setfill('0') << i << ".vtu";
+      std::ofstream vtkfile(vtkfilename.str());
+      DataMap dm;
+      dm["saturation"]   = &state.saturation();
+      dm["pressure"]     = &state.pressure();
+      dm["permeability"] = &perm_vec;
+      writeVtkData(grid, dm, vtkfile);
+    }
 
     // solving the pressure until the well conditions are met or
     // until reach the maximum number of iterations
