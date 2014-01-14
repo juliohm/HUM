@@ -16,8 +16,8 @@ For any questions or suggestions, please contact [Júlio Hoffimann](julio.hoffim
 Dependencies
 ------------
 
-Besides the Python scientific ecosystem (NumPy, SciPy, etc.),
-please check each directory for additional dependencies.
+Besides the Python scientific ecosystem (NumPy, SciPy, etc.) and a working MPI
+implementation, please check each directory for additional dependencies.
 
 Installation
 ------------
