@@ -119,10 +119,11 @@ int main (int argc, char* argv[])
   std::string buff;
   while (realization.peek() == '#') std::getline(realization, buff);
 
-  double facie; std::vector<double> perm_vec(num_cells);
+  double alpha, low = k, high = 1000*k;
+  std::vector<double> perm_vec(num_cells);
   for (int i = 0; i < num_cells; ++i) {
-    realization >> facie;
-    perm_vec[i] = 1*facie*darcy + k;
+    realization >> alpha;
+    perm_vec[i] = (high-low)*alpha + low;
   }
 
   // overwrite permeability field
