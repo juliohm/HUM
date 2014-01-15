@@ -37,11 +37,11 @@ for d in xrange(1,5):
     pl.subplot(2,4,d)
     pl.title("d = %i" % d)
     pl.imshow(img.reshape(250,250), cmap="PuBu")
-    pl.gca().set_axis_off()
+    pl.axis("off")
 
     pl.subplot(2,4,d+4)
     pl.imshow(denoised.reshape(250,250), cmap="PuBu")
-    pl.gca().set_axis_off()
+    pl.axis("off")
 
 pl.tight_layout(h_pad=0.5, w_pad=0.5)
 bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="white", ec="b", lw=2)
