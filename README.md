@@ -16,8 +16,11 @@ For any questions or suggestions, please contact [Júlio Hoffimann](julio.hoffim
 Dependencies
 ------------
 
-Besides the Python scientific ecosystem (NumPy, SciPy, etc.) and a working MPI
-implementation, please check each directory for additional dependencies.
+* Python scientific ecosystem (NumPy, SciPy, etc.)
+* Working MPI implementation (e.g. OpenMPI, MPICH)
+* [emcee](http://dan.iel.fm/emcee) ensemble samplers
+
+Please check each directory for additional dependencies.
 
 Installation
 ------------
