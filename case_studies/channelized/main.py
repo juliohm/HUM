@@ -37,7 +37,8 @@ def G(m):
     np.savetxt(infile, m, header="250x250 permeability field")
 
     # call external simulator
-    subprocess.check_call(["./simulator", "-f", infile])
+    with open("run%i.log" % pool.rank, "w") as log:
+        subprocess.check_call(["./simulator", "-f", infile], stdout=log)
 
     # load output back
     outfile = basename+".out"
