@@ -277,7 +277,6 @@ int main (int argc, char* argv[])
   IncompTpfa psolver(grid, props, linsolver, grav, wells, src, bcs.c_bcs());
 
   std::ofstream of(outfile);
-  of << "# ";
   for (auto wellname : prod_well_names)
     of << wellname << '\t';
   for (auto wellname : inj_well_names)

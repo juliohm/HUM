@@ -42,7 +42,7 @@ def G(m):
 
     # load output back
     outfile = basename+".out"
-    d = np.loadtxt(outfile, usecols=xrange(8)) # 8 producer wells
+    d = np.loadtxt(outfile, skiprows=1, usecols=xrange(8)) # 8 producer wells
 
     return d.flatten()
 
@@ -79,6 +79,11 @@ if not pool.is_master():
     sys.exit()
 
 sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
-sampler.run_mcmc(CSI.T, N=10)
+
+i=1
+for ensemble, logp, state in sampler.sample(CSI.T, iterations=10, storechain=False):
+    np.savetxt("ensemble%i.dat" % i, ensemble, header="Ensemble at iteration %i" % i)
+    np.savetxt("lnprob%i.dat" % i, logp, header="Log-probability at iteration %i" % i)
+    i += 1
 
 pool.close()
