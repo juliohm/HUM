@@ -80,10 +80,8 @@ if not pool.is_master():
 
 sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
 
-i=1
-for ensemble, logp, state in sampler.sample(CSI.T, iterations=10, storechain=False):
+for i, ensemble, logp, state in enumerate(sampler.sample(CSI.T, iterations=10, storechain=False), 1):
     np.savetxt("ensemble%i.dat" % i, ensemble, header="Ensemble at iteration %i" % i)
     np.savetxt("lnprob%i.dat" % i, logp, header="Log-probability at iteration %i" % i)
-    i += 1
 
 pool.close()
