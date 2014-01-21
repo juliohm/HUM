@@ -92,12 +92,11 @@ class KernelPCA(object):
             eigenvalues below a threshold are discarded.
             Default: None
         """
-        m = X.shape[1]
-
         # k(x,y) = <x,y> + <x,y>^2 + ... + <x,y>^d
         K = np.matrix(np.polyval(np.ones(self._d+1), np.dot(X.T, X)) - 1)
 
         # center in the feature space
+        m = X.shape[1]
         ones = 1./m * np.ones([m,m])
         K = K - (ones*K + K*ones) + ones*K*ones
 
