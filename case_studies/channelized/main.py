@@ -52,16 +52,16 @@ dobs = G(mtrue)
 
 dprior = multivariate_normal(mean=dobs, cov=1)
 
+# tuning parameters
+ncomps, nsamples = 50, 100
+
 # initial ensemble from disk (nfeatures x nsamples)
-X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(100))
+X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(nsamples))
 
 # ensemble in feature space (ncomps << nfeatures)
-ncomps, nsamples = 50, 100
-CSI = np.random.randn(ncomps, nsamples)
-
-# connect the two spaces CSI --> X
 kpca = KernelPCA(degree=4)
 kpca.train(X, ncomps=ncomps)
+CSI = kpca.featurize(X)
 
 mprior = Nonparametric(CSI)
 
@@ -80,7 +80,7 @@ if not pool.is_master():
 
 sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
 
-for i, ensemble, logp, state in enumerate(sampler.sample(CSI.T, iterations=10, storechain=False), 1):
+for i, (ensemble, logp, state) in enumerate(sampler.sample(CSI.T, iterations=10, storechain=False), 1):
     np.savetxt("ensemble%i.dat" % i, ensemble, header="Ensemble at iteration %i" % i)
     np.savetxt("lnprob%i.dat" % i, logp, header="Log-probability at iteration %i" % i)
 
