@@ -240,3 +240,26 @@ class KernelPCA(object):
                 break
 
         return preimg
+
+
+    def featurize(self, Y):
+        """
+        Map ensemble to feature space.
+
+        Parameters
+        ----------
+        Y: ndarray or matrix
+            Valid ensemble (nfeatures x nsamples)
+
+        Returns
+        -------
+        CSI: ndarray or matrix
+            Y coordinates in the feature space. (ncomps x nsamples)
+        """
+        X = self.X
+        A = self.eigbasis
+
+        # k(x,y) = <x,y> + <x,y>^2 + ... + <x,y>^d
+        Ky = np.polyval(np.ones(self._d+1), np.dot(X.T, Y)) - 1
+
+        return np.dot(A.T, Ky)
