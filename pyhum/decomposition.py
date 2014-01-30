@@ -157,7 +157,7 @@ class KernelPCA(object):
             return self._predict(csi, tol, ntries)
         else:
             # reconstruct each column in parallel
-            pool = multiprocessing.Pool(8)
+            pool = multiprocessing.Pool(8) # 8 core CPUs
             res = pool.map(_call_prediction, [(self, col, tol, ntries) for col in csi.T])
             return np.array(res).T
 
@@ -166,6 +166,7 @@ class KernelPCA(object):
         A = self.eigbasis
 
         assert A.shape[1] == csi.size, "Invalid number of coordinates"
+        assert not np.allclose(csi, 0), "Zero vector cannot be predicted"
 
         # linear kernel has closed form
         if self._d == 1:
@@ -206,7 +207,7 @@ class KernelPCA(object):
             return self._denoise(x, tol, ntries)
         else:
             # denoise each column in parallel
-            pool = multiprocessing.Pool(8)
+            pool = multiprocessing.Pool(8) # 8 core CPUs
             res = pool.map(_call_denoise, [(self, col, tol, ntries) for col in x.T])
             return np.array(res).T
 
