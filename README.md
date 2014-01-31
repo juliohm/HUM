@@ -16,9 +16,10 @@ For any questions or suggestions, please contact [Júlio Hoffimann](julio.hoffim
 Dependencies
 ------------
 
-* Python scientific ecosystem (NumPy, SciPy, etc.)
-* Working MPI implementation (e.g. OpenMPI, MPICH)
-* [emcee](http://dan.iel.fm/emcee) ensemble samplers
+* [NumPy](http://www.numpy.org) / [SciPy](http://scipy.org)
+* [scikit-learn](http://scikit-learn.org)
+* [mpi4py](http://mpi4py.scipy.org)
+* [emcee](http://dan.iel.fm/emcee)
 
 Please check each directory for additional dependencies.
 
