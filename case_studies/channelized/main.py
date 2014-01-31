@@ -41,14 +41,13 @@ def G(m):
     logfile = "run%i.log" % pool.rank
     with open(logfile, "w") as log:
         subprocess.check_call(["./simulator", "-f", infile], stdout=log)
-    os.remove(logfile)
 
     # load output back
     outfile = basename+".out"
     d = np.loadtxt(outfile, skiprows=1, usecols=xrange(8)) # 8 producer wells
 
     # clean up
-    os.remove(infile); os.remove(outfile)
+    os.remove(infile); os.remove(outfile); os.remove(logfile)
 
     return d.flatten()
 
@@ -69,7 +68,7 @@ kpca = KernelPCA(degree=4)
 kpca.train(X, ncomps=ncomps)
 CSI = kpca.featurize(X)
 
-mprior = Nonparametric(CSI)
+mprior = Nonparametric(CSI.T)
 
 # If perfect forwarding is assumed to hold true, the posterior
 # density is just the product sigma_m(m) ~ rho_d(G(m)) * rho_m(m).

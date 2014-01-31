@@ -20,18 +20,39 @@
 ## Author: Júlio Hoffimann Mendes
 
 import numpy as np
-from scipy.stats import gaussian_kde
+from sklearn.neighbors import KernelDensity
+from sklearn.grid_search import GridSearchCV
 
-# machine epsilon
-eps = np.finfo(float).eps
+class Nonparametric(object):
+    """
+    Wrapper class over scikit-learn KDE with built-in cross-validation
 
-class Nonparametric(gaussian_kde):
+    Parameters
+    ----------
+    X: ndarray or matrix
+        Data matrix (nsamples x nfeatures)
+
+    References
+    ----------
+      PARZEN, E., 1962. On Estimation of a Probability Density Function and Mode.
+
+      TERREL, G. R.; SCOTT D. W., 1992. Variable Kernel Density Estimation.
     """
-    Wrapper class over SciPy Gaussian KDE
-    """
+    def __init__(self, X):
+        self.kde = self._best_estimator(X)
+
+
     def pdf(self, x):
-        return self.evaluate(x)
+        return np.exp(self.logpdf(x))
+
 
     def logpdf(self, x):
-        p = self.evaluate(x)
-        return np.log(p) if p > eps else -np.inf
+        return self.kde.score_samples(x)
+
+
+    def _best_estimator(self, X):
+        grid = GridSearchCV(KernelDensity(),
+                            {'bandwidth' : np.linspace(0.1, 1, 30)},
+                            cv=10) # 10-fold cross-validation
+        grid.fit(X)
+        return grid.best_estimator_
