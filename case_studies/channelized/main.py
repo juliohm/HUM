@@ -19,6 +19,7 @@
 ## Created: 26 Dec 2013
 ## Author: Júlio Hoffimann Mendes
 
+import os
 import sys
 import subprocess
 import numpy as np
@@ -43,6 +44,9 @@ def G(m):
     # load output back
     outfile = basename+".out"
     d = np.loadtxt(outfile, skiprows=1, usecols=xrange(8)) # 8 producer wells
+
+    # clean up
+    os.remove(infile); os.remove(outfile)
 
     return d.flatten()
 
