@@ -26,7 +26,7 @@ from pyhum.decomposition import KernelPCA
 # load ensemble from disk (nfeatures x nsamples)
 X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(100))
 
-pl.figure()
+fig = pl.figure()
 
 for d in xrange(1,5):
     kpca = KernelPCA(degree=d)
@@ -43,10 +43,15 @@ for d in xrange(1,5):
     pl.imshow(denoised.reshape(250,250), cmap="PuBu")
     pl.axis("off")
 
-pl.tight_layout(h_pad=0.5, w_pad=0.5)
+fig.tight_layout(h_pad=0.5, w_pad=0.5)
 bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="white", ec="b", lw=2)
-pl.gcf().text(0.15, 0.5, (
-              "Kernel PCA for increasing degrees: "
-              "reconstruction above and denoised version below"),
-              bbox=bbox_props)
-pl.show()
+fig.text(0.15, 0.5, (
+         "Kernel PCA for increasing degrees: "
+         "reconstruction above and denoised version below"),
+         bbox=bbox_props)
+try:
+    pl.show()
+except:
+    print "Figure can't be displayed by GUI backend"
+finally:
+    fig.savefig("kpca_validation.pdf", bbox_inches="tight")

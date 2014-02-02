@@ -37,3 +37,5 @@ nosetests.xml
 
 # Specific files
 case_studies/channelized/simulator
+
+misc/kpca_validation.pdf
