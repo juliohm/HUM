@@ -28,6 +28,9 @@ import emcee
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
 
+# make sure this script is reproducible
+np.random.seed(2014)
+
 # initialize the MPI-based pool
 pool = emcee.utils.MPIPool()
 
@@ -78,6 +81,10 @@ def lnprob(csi):
     m = kpca.predict(csi)
     return mprior.logpdf(csi) + dprior.logpdf(G(m))
 
+# trivial proposal X --> X'
+def proposal(X):
+    return mprior.sample(n_samples=X.shape[0])
+
 # wait for instructions from the master process
 if not pool.is_master():
     pool.wait()
@@ -85,7 +92,8 @@ if not pool.is_master():
 
 sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
 
-for i, (ensemble, logp, state) in enumerate(sampler.sample(CSI.T, iterations=10, storechain=False), 1):
+for i, (ensemble, logp, state) in enumerate(sampler.sample(CSI.T, iterations=1000, storechain=False,
+                                                           mh_proposal=proposal), 1):
     np.savetxt("ensemble%i.dat" % i, ensemble, header="Ensemble at iteration %i" % i)
     np.savetxt("lnprob%i.dat" % i, logp, header="Log-probability at iteration %i" % i)
 

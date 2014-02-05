@@ -50,6 +50,10 @@ class Nonparametric(object):
         return self.kde.score_samples(x)
 
 
+    def sample(self, *args, **kwargs):
+        return self.kde.sample(*args, **kwargs)
+
+
     def _best_estimator(self, X):
         grid = GridSearchCV(KernelDensity(),
                             {'bandwidth' : np.linspace(0.1, 1, 30)},
