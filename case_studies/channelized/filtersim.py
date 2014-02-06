@@ -19,7 +19,7 @@
 ## Created: 06 Feb 2014
 ## Author: Júlio Hoffimann Mendes
 
-from os import devnull
+from os import devnull, remove
 from subprocess import check_call
 from tempfile import NamedTemporaryFile
 import numpy as np
@@ -53,6 +53,9 @@ SaveGeostatGrid  filtersimGrid::proposed_ensemble.csv::csv
         cmdfile.flush()
         check_call(["ar2gems", cmdfile.name], stdout=trash, stderr=trash)
 
+    X = np.loadtxt("proposed_ensemble.csv", delimiter=",", skiprows=1)
+
+    remove("proposed_ensemble.csv")
     ar2gems_seed += 1
 
-    return np.loadtxt("proposed_ensemble.csv", delimiter=",", skiprows=1)
+    return X
