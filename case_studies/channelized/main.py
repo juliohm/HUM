@@ -27,6 +27,7 @@ from scipy.stats import multivariate_normal
 import emcee
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
+from utils import filtersim
 
 # make sure results are reproducible
 np.random.seed(2014)
@@ -81,9 +82,14 @@ def lnprob(csi):
     m = kpca.predict(csi)
     return mprior.logpdf(csi) + dprior.logpdf(G(m))
 
-# trivial proposal CSI --> CSI'
+# trivial proposal
 def proposal(CSI):
     return mprior.sample(n_samples=nsamples)
+
+# filtersim-based proposal
+def filtersim_proposal(CSI):
+    X = filtersim(nsamples)
+    return kpca.featurize(X).T
 
 # wait for instructions from the master process
 if not pool.is_master():
