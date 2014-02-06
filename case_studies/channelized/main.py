@@ -28,7 +28,7 @@ import emcee
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
 
-# make sure this script is reproducible
+# make sure results are reproducible
 np.random.seed(2014)
 
 # initialize the MPI-based pool
@@ -55,7 +55,7 @@ def G(m):
     return d.flatten()
 
 # mtrue is unknown, only used here to generate dobs
-mtrue = np.loadtxt("mtrue.dat")
+mtrue = np.loadtxt("mtrue.dat", skiprows=22)
 dobs = G(mtrue)
 
 dprior = multivariate_normal(mean=dobs, cov=1)
@@ -81,9 +81,9 @@ def lnprob(csi):
     m = kpca.predict(csi)
     return mprior.logpdf(csi) + dprior.logpdf(G(m))
 
-# trivial proposal X --> X'
-def proposal(X):
-    return mprior.sample(n_samples=X.shape[0])
+# trivial proposal CSI --> CSI'
+def proposal(CSI):
+    return mprior.sample(n_samples=nsamples)
 
 # wait for instructions from the master process
 if not pool.is_master():

@@ -1,4 +1,25 @@
-# 250x250 training image
+# FILE FORMAT
+# -----------
+#
+# nx ny nz
+# dx dy dz
+# Ox Oy Oz
+# zangle
+#
+# property1 (continuous|categorical)
+# <list of values of size nx*ny*nz>
+#
+# property2 (continuous|categorical)
+# <list of values of size nx*ny*nz>
+#
+# ...
+
+250 250 1
+1. 1. 1.
+0. 0. 0.
+0.
+
+permeability continuous
 0
 0
 0
