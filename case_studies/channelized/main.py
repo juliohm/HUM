@@ -118,5 +118,6 @@ mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=kde_
 for i, (ensemble, logp, state) in enumerate(mcmc):
     np.savetxt("ensemble%i.dat" % i, ensemble)
     np.savetxt("lnprob%i.dat" % i, logp)
+    np.savetxt("acceptance%i.dat" % i, sampler.acceptance_fraction)
 
 pool.close()
