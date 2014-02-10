@@ -82,11 +82,16 @@ def lnprob(csi):
     m = kpca.predict(csi)
     return mprior.logpdf(csi) + dprior.logpdf(G(m))
 
-# trivial proposal
-def proposal(CSI):
+# likelihood
+def lnlike(csi):
+    m = kpca.predict(csi)
+    return dprior.logpdf(G(m))
+
+# KDE-based proposal
+def kde_proposal(CSI):
     return mprior.sample(n_samples=nsamples)
 
-# filtersim-based proposal
+# Filtersim-based proposal
 def filtersim_proposal(CSI):
     X = filtersim(nsamples)
     return kpca.featurize(X).T
@@ -96,11 +101,22 @@ if not pool.is_master():
     pool.wait()
     sys.exit()
 
-sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
+### There are three possible configurations:
 
-for i, (ensemble, logp, state) in enumerate(sampler.sample(CSI.T, iterations=1000, storechain=False,
-                                                           mh_proposal=proposal), 1):
-    np.savetxt("ensemble%i.dat" % i, ensemble, header="Ensemble at iteration %i" % i)
-    np.savetxt("lnprob%i.dat" % i, logp, header="Log-probability at iteration %i" % i)
+# a) (symmetric) stretch move
+#sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
+#mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False)
+
+# b) KDE move
+sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
+mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=kde_proposal)
+
+# c) Filtersim move
+#sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
+#mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=filtersim_proposal)
+
+for i, (ensemble, logp, state) in enumerate(mcmc):
+    np.savetxt("ensemble%i.dat" % i, ensemble)
+    np.savetxt("lnprob%i.dat" % i, logp)
 
 pool.close()
