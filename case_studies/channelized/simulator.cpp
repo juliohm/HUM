@@ -26,7 +26,6 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
-#include <cstdlib>
 
 #include <boost/program_options.hpp>
 
@@ -73,7 +72,7 @@ int main (int argc, char* argv[])
   auto pos = infile.rfind(".dat");
   if (pos == std::string::npos) {
     std::cout << "File extension *.dat not found. Stop." << std::endl;
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   std::string basename = infile.substr(0,pos);
@@ -112,7 +111,7 @@ int main (int argc, char* argv[])
   std::ifstream realization(infile);
   if (!realization.good()) {
     std::cout << "Input file is not okay. Stop." << std::endl;
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   // skip header
