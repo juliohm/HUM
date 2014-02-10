@@ -78,7 +78,7 @@ class KernelPCA(object):
         self._d = degree
 
 
-    def train(self, X, ncomps=None):
+    def train(self, X, ncomps=None, energy=None):
         """
         Solve the eigenproblem and stores the basis for future predictions.
 
@@ -87,10 +87,11 @@ class KernelPCA(object):
         X: ndarray or matrix
             Data matrix (nfeatures x nsamples).
 
-        ncomps: int or None
-            Number of components (0 < ncomps <= nsamples). If None, all
-            eigenvalues below a threshold are discarded.
-            Default: None
+        ncomps: int
+            Number of components to retain (0 < ncomps <= nsamples).
+
+        energy: float
+            Energy level for which to retain components (0 < energy <= 1).
         """
         # k(x,y) = <x,y> + <x,y>^2 + ... + <x,y>^d
         K = np.matrix(np.polyval(np.ones(self._d+1), np.dot(X.T, X)) - 1)
@@ -105,16 +106,22 @@ class KernelPCA(object):
 
         # The kernel Gramian matrix is positive semidefinite,
         # all eigenvalues are nonnegative.
-        if ncomps is None:
-            # discard eigenvalues below a threshold
+        if ncomps is None and energy is not None:
+            # retain eigenvalues till reach specified energy level
+            assert 0 < energy and energy <= 1, "energy must be in range (0,1]"
             lambdas, V = eigh(K, overwrite_a=True)
-            idx = lambdas >= 1e-8
-            lambdas = lambdas[idx]
-            V = V[:,idx]
-        else:
+
+            levels = np.cumsum(np.flipud(lambdas)) / sum(lambdas)
+            ncomps = np.argmax(levels >= energy) + 1
+
+            lambdas = lambdas[-ncomps:]
+            V = V[:,-ncomps:]
+        elif ncomps is not None and energy is None:
             # retain the desired number of components
-            assert 0 < ncomps and ncomps <= m, "ncomps is not valid"
+            assert 0 < ncomps and ncomps <= m, "ncomps must be in range (0,nsamples]"
             lambdas, V = eigh(K, overwrite_a=True, eigvals=(m-ncomps,m-1))
+        else:
+            raise TypeError("Exactly one of 'ncomps' and 'energy' arguments must be specified")
 
         # normalize
         self.eigbasis = np.dot(V, np.diag(1./np.sqrt(lambdas)))
