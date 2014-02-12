@@ -13,14 +13,14 @@ Dependencies
 * [opm-core](https://github.com/OPM/opm-core)
 * [SuiteSparse](http://www.cise.ufl.edu/research/sparse/SuiteSparse)
 * [Boost C++ Libraries](http://www.boost.org)
+* Modified [SGeMS](https://github.com/juliohm/ar2tech-SGeMS-public) (for Filtersim-based proposal)
 
 Instructions
 ------------
 
-All dependencies are necessary to build the OPM-based blackoil simulator developed
-for this case study. Please check opm-core webpage for an updated list of dependencies.
-
-After all dependencies are correctly installed, run `make` to build the simulator:
+All dependencies (except [SGeMS](https://github.com/juliohm/ar2tech-SGeMS-public))
+are necessary to build the OPM-based blackoil simulator developed for this case study.
+After all of them are correctly installed, run `make` to build the simulator:
 
 ```
 make
