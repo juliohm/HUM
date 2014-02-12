@@ -110,7 +110,7 @@ int main (int argc, char* argv[])
   // read permeability map
   std::ifstream realization(infile);
   if (!realization.good()) {
-    std::cout << "Input file is not okay. Stop." << std::endl;
+    std::cerr << "Input file is not okay. Stop." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -260,9 +260,6 @@ int main (int argc, char* argv[])
 
   // We're not using well controls, just group controls, so we need to apply them.
   well_collection.applyGroupControls();
-
-//  append_well_controls(RESERVOIR_RATE, 1000*cubic(meter)/day, NULL, 8, wells);
-//  append_well_controls(RESERVOIR_RATE, 1000*cubic(meter)/day, NULL, 9, wells);
 
   // set up necessary information for the wells
   WellState well_state;
