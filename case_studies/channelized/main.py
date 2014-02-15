@@ -115,9 +115,9 @@ mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=kde_
 #sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
 #mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=filtersim_proposal)
 
-for i, (ensemble, logp, state) in enumerate(mcmc):
-    np.savetxt("ensemble%i.dat" % i, ensemble)
-    np.savetxt("lnprob%i.dat" % i, logp)
-    np.savetxt("acceptance%i.dat" % i, sampler.acceptance_fraction)
+for i, (ensemble, logp, state) in enumerate(mcmc, 1):
+    np.savetxt("ensemble{0:04d}.dat".format(i), ensemble)
+    np.savetxt("lnprob{0:04d}.dat".format(i), logp)
+    np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
 
 pool.close()
