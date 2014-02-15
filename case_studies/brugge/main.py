@@ -114,12 +114,12 @@ for i, t in enumerate(timesteps, 1):
 
     # likelihood under perfect forwarding assumption
     def lnlike(csi):
-        m = kpca.predict(csi).clip(0,1)
+        m = kpca.predict(csi).clip(0, 1)
         return dprior.logpdf(G(m, t))
 
     # posterior sigma_m(m) ~ rho_d(G(m)) * rho_m(m)
     def lnprob(csi):
-        m = kpca.predict(csi).clip(0,1)
+        m = kpca.predict(csi).clip(0, 1)
         return mprior.logpdf(csi) + dprior.logpdf(G(m, t))
 
     if pool.is_master():
@@ -138,7 +138,8 @@ for i, t in enumerate(timesteps, 1):
             np.savetxt("lnprob{0:03d}-{0:03d}.dat".format(i,j), logp)
             np.savetxt("acceptance{0:03d}-{0:03d}.dat".format(i,j), sampler.acceptance_fraction)
 
-        # update initial guess
+        # update prior with posterior
+        mprior = Nonparametric(ensemble)
         CSI = np.array(ensemble).T
 
         # we're done with this timestep, tell slaves to proceed
