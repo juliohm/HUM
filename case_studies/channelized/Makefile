@@ -7,12 +7,12 @@
 #
 # Likewise for the other dependencies (Boost, UMFPACK, LAPACK, BLAS, etc.)
 
-LIBS = -lopmcore -lboost_filesystem -lboost_system -lboost_program_options -lumfpack -llapack -lblas
+LDLIBS = -lopmcore -lboost_filesystem -lboost_system -lboost_program_options -lumfpack -llapack -lblas
 
 .PHONY: all
 all:
 	@echo "$$(tput bold; tput setaf 2)Building OPM-based blackoil simulator$$(tput sgr0)"
-	g++ -std=c++11 -Wall -Wextra -pedantic -O3 -march=native simulator.cpp $(LIBS) -o simulator
+	g++ -std=c++11 -Wall -Wextra -pedantic -O3 -march=native simulator.cpp $(LDLIBS) -o simulator
 
 .PHONY: clean
 clean:
