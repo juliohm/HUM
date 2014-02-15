@@ -5,6 +5,8 @@ This case study consists of the benchmark Brugge field case developed and
 made available by [TNO](https://www.tno.nl) for academic purposes. For a
 better description, please read my Master's dissertation.
 
+<img src="brugge.png" alt="Brugge field" width=400>
+
 Dependencies
 ------------
 
