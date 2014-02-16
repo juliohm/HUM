@@ -19,9 +19,7 @@
 ## Created: 26 Dec 2013
 ## Author: Júlio Hoffimann Mendes
 
-import os
 import sys
-import subprocess
 import numpy as np
 from scipy.stats import multivariate_normal
 import emcee
