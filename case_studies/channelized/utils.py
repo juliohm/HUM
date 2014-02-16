@@ -22,6 +22,7 @@
 from os import devnull, remove
 from subprocess import check_call
 from tempfile import NamedTemporaryFile
+from mpi4py import MPI
 import numpy as np
 
 # make sure results are reproducible
@@ -61,25 +62,12 @@ SaveGeostatGrid  filtersimGrid::proposed_ensemble.csv::csv
     return X
 
 
-def OPMSimulator(m, pool):
+def OPMSimulator(m):
     """
     OPM-based blackoil simulator
-
-    Parameters
-    ----------
-    m: ndarray
-        flattened permeability field
-
-    pool: emcee.utils.MPIPool
-        MPI pool used for parallelism
-
-    Returns
-    -------
-    d: ndarray
-        flattened production history
     """
     # dump input to file
-    basename = "rank%i" % pool.rank
+    basename = "rank%i" % MPI.COMM_WORLD.Get_rank()
     infile = basename+".dat"
     np.savetxt(infile, m, header="250x250 permeability field")
 

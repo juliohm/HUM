@@ -36,7 +36,7 @@ np.random.seed(2014)
 pool = emcee.utils.MPIPool()
 
 # forward operator d = G(m)
-G = lambda m: OPMSimulator(m, pool)
+G = OPMSimulator
 
 # mtrue is unknown, only used here to generate dobs
 mtrue = np.loadtxt("mtrue.dat", skiprows=22)
