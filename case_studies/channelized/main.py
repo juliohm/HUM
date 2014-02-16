@@ -27,7 +27,7 @@ from scipy.stats import multivariate_normal
 import emcee
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
-from utils import filtersim
+from utils import filtersim, OPMSimulator
 
 # make sure results are reproducible
 np.random.seed(2014)
@@ -35,25 +35,8 @@ np.random.seed(2014)
 # initialize the MPI-based pool
 pool = emcee.utils.MPIPool()
 
-def G(m):
-    # dump input to file
-    basename = "rank%i" % pool.rank
-    infile = basename+".dat"
-    np.savetxt(infile, m, header="250x250 permeability field")
-
-    # call external simulator
-    logfile = basename+".log"
-    with open(logfile, "w") as log:
-        subprocess.check_call(["./simulator", "-f", infile], stdout=log, stderr=log)
-
-    # load output back
-    outfile = basename+".out"
-    d = np.loadtxt(outfile, skiprows=1, usecols=xrange(8)) # 8 producer wells
-
-    # clean up
-    os.remove(infile); os.remove(outfile); os.remove(logfile)
-
-    return d.flatten()
+# forward operator d = G(m)
+G = lambda m: OPMSimulator(m, pool)
 
 # mtrue is unknown, only used here to generate dobs
 mtrue = np.loadtxt("mtrue.dat", skiprows=22)

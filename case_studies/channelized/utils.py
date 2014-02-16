@@ -27,9 +27,9 @@ import numpy as np
 # make sure results are reproducible
 ar2gems_seed = 1
 
-# This code relies on a recent version of SGeMS with support to the
-# command `LoadCartesianGrid` written by myself. The command is for
-# sure available at https://github.com/juliohm/ar2tech-SGeMS-public
+# This function relies on a recent version of SGeMS with support to
+# the command `LoadCartesianGrid` written by myself. The command is
+# for sure available at https://github.com/juliohm/ar2tech-SGeMS-public
 def filtersim(N):
     """
     Generate N realizations from 250x250 training image
@@ -59,3 +59,40 @@ SaveGeostatGrid  filtersimGrid::proposed_ensemble.csv::csv
     ar2gems_seed += 1
 
     return X
+
+
+def OPMSimulator(m, pool):
+    """
+    OPM-based blackoil simulator
+
+    Parameters
+    ----------
+    m: ndarray
+        flattened permeability field
+
+    pool: emcee.utils.MPIPool
+        MPI pool used for parallelism
+
+    Returns
+    -------
+    d: ndarray
+        flattened production history
+    """
+    # dump input to file
+    basename = "rank%i" % pool.rank
+    infile = basename+".dat"
+    np.savetxt(infile, m, header="250x250 permeability field")
+
+    # call external simulator
+    logfile = basename+".log"
+    with open(logfile, "w") as log:
+        check_call(["./simulator", "-f", infile], stdout=log, stderr=log)
+
+    # load output back
+    outfile = basename+".out"
+    d = np.loadtxt(outfile, skiprows=1, usecols=xrange(8)) # 8 producer wells
+
+    # clean up
+    remove(infile); remove(outfile); remove(logfile)
+
+    return d.flatten()
