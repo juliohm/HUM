@@ -19,7 +19,12 @@
 ## Created: 11 Feb 2014
 ## Author: Júlio Hoffimann Mendes
 
+import numpy as np
+from os import remove
+from subprocess import check_call
 from collections import namedtuple
+from string import Template
+from mpi4py import MPI
 
 def CMGFile(basename):
     """
@@ -36,3 +41,53 @@ def CMGFile(basename):
                      basename+"-phi.inc",
                      basename+"-kx.inc",
                      basename+"-kz.inc")
+
+
+def IMEX(m, timestep):
+    """
+    IMEX reservoir simulator
+
+    Returns the history for a given timestep.
+    """
+    basename = "rank%i" % MPI.COMM_WORLD.Get_rank()
+    cmgfile = CMGFile(basename)
+
+    # active cells in the grid
+    mask = np.loadtxt("null.inc", dtype=bool, skiprows=2)
+
+    # poro-perm regression
+    phi = np.zeros_like(mask, dtype=float)
+    phi[mask] = m
+    Kx = 0.01*np.exp(45.633*phi)
+    Kz = 0.4*Kx
+
+    # dump input to file
+    np.savetxt(cmgfile.poro, phi, comments="", header="POR ALL")
+    np.savetxt(cmgfile.permx, Kx, comments="", header="PERMI ALL")
+    np.savetxt(cmgfile.permz, Kz, comments="", header="PERMK ALL")
+
+    # create *.dat from brugge.tmpl
+    with open("brugge.tmpl", "r") as tmpl, open(cmgfile.dat, "w") as dat:
+        t = Template(tmpl.read())
+        content = t.substitute(POROSITY_INC=cmgfile.poro, PERMI_INC=cmgfile.permx, PERMK_INC=cmgfile.permz)
+        dat.write(content)
+
+    # create *.rwd from report.tmpl
+    with open("report.tmpl", "r") as tmpl, open(cmgfile.rwd, "w") as rwd:
+        t = Template(tmpl.read())
+        content = t.substitute(IRFFILE=cmgfile.irf)
+        rwd.write(content)
+
+    # call IMEX + Results Report
+    with open(cmgfile.log, "w") as log:
+        check_call(["RunSim.sh", "imex", "2012.10", cmgfile.dat, "-log", "-wait"], stdout=log)
+        check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
+
+    # oil rate SC for all 20 producer wells
+    history = np.loadtxt(cmgfile.rwo, skiprows=6)
+
+    # clean up
+#    for filename in cmgfile:
+#        remove(filename)
+
+    return history[timestep,:]
