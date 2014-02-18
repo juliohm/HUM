@@ -178,7 +178,7 @@ class KernelPCA(object):
         # linear kernel has closed form
         if self._d == 1:
             b = np.dot(A, csi)
-            return np.dot(self.X, b / sum(b))
+            return np.dot(self.X, b)
         else:
             b = np.dot(A, csi)
             guess = np.mean(self.X, 1) + np.random.randn(self.X.shape[0])
@@ -227,7 +227,7 @@ class KernelPCA(object):
         # linear kernel has closed form
         if self._d == 1:
             b = np.dot(A, np.dot(A.T, np.dot(self.X.T, x)))
-            return np.dot(self.X, b / sum(b))
+            return np.dot(self.X, b)
         else:
             Kx = np.polyval(np.ones(self._d+1), np.dot(self.X.T, x)) - 1
 
