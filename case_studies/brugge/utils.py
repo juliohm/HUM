@@ -85,9 +85,11 @@ def IMEX(m, timestep):
 
     # oil rate SC for all 20 producer wells
     history = np.loadtxt(cmgfile.rwo, skiprows=6)
+    nsteps, nwells = history.shape
 
     # clean up
-#    for filename in cmgfile:
-#        remove(filename)
+    for filename in cmgfile:
+        remove(filename)
 
-    return history[timestep,:]
+    # return zero rate in case of premature termination
+    return history[timestep,:] if timestep < nsteps else np.zeros(nwells)
