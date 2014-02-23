@@ -97,7 +97,7 @@ int main (int argc, char* argv[])
 
   // porosity and permeability of the rock
   double porosity = 0.3;
-  double k = 100*milli*darcy;
+  double k = 10*milli*darcy;
 
   // define the relative permeability function
   // Use a basic fluid description and set this function to be linear.
