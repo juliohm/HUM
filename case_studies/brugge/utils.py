@@ -44,7 +44,7 @@ def CMGFile(basename):
                      basename+"-kz.inc")
 
 
-def IMEX(m, timestep):
+def IMEX(m, timestep=None):
     """
     IMEX reservoir simulator
 
@@ -112,4 +112,4 @@ def IMEX(m, timestep):
     for filename in cmgfile:
         remove(filename)
 
-    return history[timestep,:]
+    return history.flatten() if timestep is None else history[timestep,:].flatten()
