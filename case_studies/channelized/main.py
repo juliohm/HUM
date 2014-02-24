@@ -21,8 +21,8 @@
 
 import sys
 import numpy as np
-from scipy.stats import multivariate_normal
 import emcee
+from scipy.stats import multivariate_normal
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
 from utils import filtersim, OPMSimulator
@@ -47,6 +47,11 @@ ncomps, nsamples = 50, 100
 
 # initial ensemble from disk (nfeatures x nsamples)
 X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(nsamples))
+
+# evaluate forward operator on prior ensemble and save results
+D = np.array(pool.map(G, [m for m in X.T])).T
+if pool.is_master():
+    np.savetxt("Dprior.dat", D)
 
 # ensemble in feature space (ncomps << nfeatures)
 kpca = KernelPCA(degree=4)
@@ -100,5 +105,10 @@ for i, (ensemble, logp, state) in enumerate(mcmc, 1):
     np.savetxt("ensemble{0:04d}.dat".format(i), ensemble)
     np.savetxt("lnprob{0:04d}.dat".format(i), logp)
     np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
+
+# evaluate forward operator on posterior ensemble and save results
+D = np.array(pool.map(G, [m for m in ensemble])).T
+if pool.is_master():
+    np.savetxt("Dpost.dat", D)
 
 pool.close()
