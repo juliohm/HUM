@@ -21,7 +21,8 @@
 
 import numpy as np
 from os import remove
-from subprocess import check_call
+from time import time, sleep
+from subprocess import Popen, check_call
 from collections import namedtuple
 from string import Template
 from mpi4py import MPI
@@ -78,18 +79,32 @@ def IMEX(m, timestep):
         content = t.substitute(IRFFILE=cmgfile.irf)
         rwd.write(content)
 
+    # hardcode number of wells
+    nwells = 20
+
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
-        check_call(["RunSim.sh", "imex", "2012.10", cmgfile.dat, "-log", "-wait"], stdout=log)
-        check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
+        proc = Popen(["RunSim.sh", "imex", "2012.10", cmgfile.dat, "-log", "-wait"], stdout=log)
+
+        start = time()
+        while proc.poll() is None: # IMEX still running?
+            if time() - start > 300: # 5min timeout
+                proc.kill()
+                break
+            sleep(10)
+
+        if proc.returncode == 0:
+            check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
+        else:
+            # create dummy *.rwo file
+            np.savetxt(cmgfile.rwo, np.zeros(nwells), header="\n"*5)
 
     # oil rate SC for all 20 producer wells
     history = np.loadtxt(cmgfile.rwo, skiprows=6)
-    nsteps, nwells = history.shape
 
     # clean up
     for filename in cmgfile:
         remove(filename)
 
     # return zero rate in case of premature termination
-    return history[timestep,:] if timestep < nsteps else np.zeros(nwells)
+    return history[timestep,:] if timestep < history.shape[0] else np.zeros(nwells)
