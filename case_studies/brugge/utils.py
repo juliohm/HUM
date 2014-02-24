@@ -48,7 +48,7 @@ def IMEX(m, timestep):
     """
     IMEX reservoir simulator
 
-    Returns the history for a given timestep.
+    Returns the history at given timestep(s).
     """
     basename = "rank%i" % MPI.COMM_WORLD.Get_rank()
     cmgfile = CMGFile(basename)
@@ -79,8 +79,8 @@ def IMEX(m, timestep):
         content = t.substitute(IRFFILE=cmgfile.irf)
         rwd.write(content)
 
-    # hardcode number of wells
-    nwells = 20
+    # hardcode history shape
+    nsteps, nwells = 122, 20
 
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
@@ -93,19 +93,23 @@ def IMEX(m, timestep):
                 break
             sleep(10)
 
-        proc.wait() # wait for return code
+        proc.wait() # wait for IMEX exit code
         if proc.returncode == 0:
             check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
         else:
             # create dummy *.rwo file
-            np.savetxt(cmgfile.rwo, np.zeros(nwells), header="\n"*5)
+            np.savetxt(cmgfile.rwo, np.zeros([1,nwells]), header="\n"*5)
 
     # oil rate SC for all 20 producer wells
-    history = np.loadtxt(cmgfile.rwo, skiprows=6)
+    history = np.loadtxt(cmgfile.rwo, skiprows=6, ndmin=2)
+    ns, nw = history.shape
+
+    # fix history in case of premature/abnormal termination
+    if ns < nsteps:
+        history = np.concatenate((history, np.zeros([nsteps-ns, nwells])))
 
     # clean up
     for filename in cmgfile:
         remove(filename)
 
-    # return zero rate in case of premature termination
-    return history[timestep,:] if timestep < history.shape[0] else np.zeros(nwells)
+    return history[timestep,:]
