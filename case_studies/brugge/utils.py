@@ -93,6 +93,7 @@ def IMEX(m, timestep):
                 break
             sleep(10)
 
+        proc.wait() # wait for return code
         if proc.returncode == 0:
             check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
         else:
