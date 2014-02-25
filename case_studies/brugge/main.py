@@ -47,6 +47,11 @@ for j in xrange(nsamples):
 mask = np.loadtxt("null.inc", dtype=bool, skiprows=2)
 X = X[mask,:]
 
+# evaluate forward operator on prior ensemble and save results
+D = np.array(pool.map(G, [m for m in X.T])).T
+if pool.is_master():
+    np.savetxt("Dprior.dat", D)
+
 # ensemble in feature space (ncomps << nfeatures)
 kpca = KernelPCA()
 kpca.train(X, ncomps=ncomps)
@@ -102,3 +107,8 @@ for i, t in enumerate(timesteps, 1):
     else:
         # wait from instructions from the master process
         pool.wait()
+
+# evaluate forward operator on posterior ensemble and save results
+D = np.array(pool.map(G, [m for m in ensemble])).T
+if pool.is_master():
+    np.savetxt("Dpost.dat", D)
