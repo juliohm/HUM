@@ -52,6 +52,9 @@ D = np.array(pool.map(G, [m for m in X.T])).T
 if pool.is_master():
     np.savetxt("Dprior.dat", D)
 
+# tell slaves to proceed
+pool.close()
+
 # ensemble in feature space (ncomps << nfeatures)
 kpca = KernelPCA()
 kpca.train(X, ncomps=ncomps)
@@ -112,3 +115,5 @@ for i, t in enumerate(timesteps, 1):
 D = np.array(pool.map(G, [m for m in ensemble])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
+
+pool.close()
