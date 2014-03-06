@@ -20,8 +20,8 @@
 ## Author: Júlio Hoffimann Mendes
 
 import sys
-import numpy as np
 import emcee
+import numpy as np
 from scipy.stats import multivariate_normal
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
@@ -41,6 +41,10 @@ mtrue = np.loadtxt("mtrue.dat", skiprows=22)
 dobs = G(mtrue)
 
 dprior = multivariate_normal(mean=dobs, cov=1)
+
+# save synthetic observations into disk
+if pool.is_master():
+    np.savetxt("dobs.dat", dobs)
 
 # tuning parameters
 ncomps, nsamples = 50, 100
