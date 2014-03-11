@@ -49,9 +49,6 @@ fig.text(0.15, 0.5, (
          "Kernel PCA for increasing degrees: "
          "reconstruction above and denoised version below"),
          bbox=bbox_props)
-try:
-    pl.show()
-except:
-    print "Figure can't be displayed by GUI backend"
-finally:
-    fig.savefig("kpca_validation.pdf", bbox_inches="tight")
+
+pl.show()
+fig.savefig("kpca_validation.pdf", bbox_inches="tight")
