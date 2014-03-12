@@ -22,51 +22,23 @@
 import numpy as np
 import pylab as pl
 import numpy.ma as ma
+from pyhum.plotting import *
 
-# load results from disk
-lnprob_start = np.loadtxt("lnprob0001.dat")
-lnprob_end   = np.loadtxt("lnprob1000.dat")
-acceptance   = np.loadtxt("acceptance1000.dat")
+# load results
+prior      = np.loadtxt("lnprob0001.dat")
+posterior  = np.loadtxt("lnprob1000.dat")
+acceptance = np.loadtxt("acceptance1000.dat")
 
 # purge outliers
-lnprob_start = ma.masked_less(lnprob_start, -2000).compressed()
-lnprob_end   = ma.masked_less(lnprob_end, -2000).compressed()
+prior      = ma.masked_less(prior, -2000).compressed()
+posterior  = ma.masked_less(posterior, -2000).compressed()
 
-#----------------------------------------------------------
-# Bean plot of prior vs. posterior log-probabilities
-#----------------------------------------------------------
-try:
-    from statsmodels.graphics.boxplots import beanplot
-    fig = pl.figure()
-    ax = fig.gca()
-    beanplot((lnprob_start, lnprob_end),
-              ax=ax, jitter=False, labels=["prior","posterior"],
-              plot_opts={"bean_mean_color":"c",
-                         "bean_median_color":"m",
-                         "violin_fc":"w",
-                         "violin_alpha":1})
-    ax.set_xlabel("prior vs. posterior")
-    ax.set_ylabel("log-probability")
-    pl.show()
-except ImportError:
-    print "Consider installing StatsModels package for bean plots."
-finally:
-    fig.savefig("lnprob.pdf")
+# prior vs. posterior log-probabilities
+fig = plot_lnprob((prior, posterior))
+pl.show()
+fig.savefig("lnprob.pdf")
 
-#----------------------------------------------------------
-# Acceptance fraction for each walker
-#----------------------------------------------------------
-nwalkers = acceptance.size
-mean_acc = acceptance.mean()
-fig = pl.figure()
-ax = fig.gca()
-pl.bar(xrange(1, nwalkers+1), acceptance, align="center", color="k", edgecolor="c")
-pl.axhline(mean_acc, color="r", linestyle="--", dash_capstyle="round")
-ax.annotate("mean acceptance = %.1f %%" % (100*mean_acc),
-            color="r", xy=(10, mean_acc), xytext=(10, mean_acc+0.02))
-ax.set_xlim(0, nwalkers+1)
-ax.set_ylim(0, 1)
-ax.set_xlabel("walker index")
-ax.set_ylabel("acceptance fraction")
+# acceptance fraction for each walker
+fig = plot_acceptance(acceptance)
 pl.show()
 fig.savefig("acceptance.pdf")
