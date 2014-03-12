@@ -35,7 +35,8 @@ nosetests.xml
 .project
 .pydevproject
 
+# Generated figures
+*.pdf
+
 # Specific files
 case_studies/channelized/simulator
-
-misc/kpca_validation.pdf
