@@ -57,6 +57,10 @@ class KernelPCA(object):
         Degree of the kernel function
         Default: 1
 
+    nprocs: int, optional
+        Number of processes spawned in prediction/denoising
+        Default: 8 core CPUs
+
     References
     ----------
       MENDES, J. H.; WILLMERSDORF, R. B.; ARAUJO, E. R., 2014. The Inverse
@@ -73,9 +77,11 @@ class KernelPCA(object):
       Component Analysis for Efficient, Differentiable Parametrization
       of Multipoint Geostatistics.
     """
-    def __init__(self, degree=1):
-        assert degree > 0, "Degree must be integer greater than zero"
+    def __init__(self, degree=1, nprocs=8):
+        assert degree > 0, "Degree must be a positive integer"
+        assert nprocs > 0, "Number of processes must be a positive integer"
         self._d = degree
+        self._nprocs = nprocs
 
 
     def train(self, X, ncomps=None, energy=None):
@@ -164,7 +170,7 @@ class KernelPCA(object):
             return self._predict(csi, tol, ntries)
         else:
             # reconstruct each column in parallel
-            pool = multiprocessing.Pool(8) # 8 core CPUs
+            pool = multiprocessing.Pool(self._nprocs)
             res = pool.map(_call_prediction, [(self, col, tol, ntries) for col in csi.T])
             return np.array(res).T
 
@@ -214,7 +220,7 @@ class KernelPCA(object):
             return self._denoise(x, tol, ntries)
         else:
             # denoise each column in parallel
-            pool = multiprocessing.Pool(8) # 8 core CPUs
+            pool = multiprocessing.Pool(self._nprocs)
             res = pool.map(_call_denoise, [(self, col, tol, ntries) for col in x.T])
             return np.array(res).T
 
