@@ -23,22 +23,41 @@ import numpy as np
 import pylab as pl
 import numpy.ma as ma
 from pyhum.plotting import *
+from pyhum.decomposition import KernelPCA
 
-# load results
+# prior and posterior log-probabilities
 prior      = np.loadtxt("lnprob0001.dat")
 posterior  = np.loadtxt("lnprob1000.dat")
-acceptance = np.loadtxt("acceptance1000.dat")
 
 # purge outliers
 prior      = ma.masked_less(prior, -2000).compressed()
 posterior  = ma.masked_less(posterior, -2000).compressed()
 
-# prior vs. posterior log-probabilities
 fig = plot_lnprob((prior, posterior))
 pl.show()
-fig.savefig("lnprob.pdf")
+fig.savefig("lnprob.pdf", bbox_inches="tight")
 
 # acceptance fraction for each walker
+acceptance = np.loadtxt("acceptance1000.dat")
 fig = plot_acceptance(acceptance)
 pl.show()
-fig.savefig("acceptance.pdf")
+fig.savefig("acceptance.pdf", bbox_inches="tight")
+
+# prior and posterior ensemble
+CSI = np.loadtxt("ensemble1000.dat")
+nsamples, ncomps = CSI.shape
+Xprior = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(nsamples))
+kpca = KernelPCA(degree=4)
+kpca.train(Xprior, ncomps=ncomps)
+Xpost = kpca.predict(CSI.T)
+
+for name, X in {"prior":Xprior, "posterior":Xpost}.items():
+    fig = pl.figure()
+    for i in xrange(25):
+        pl.subplot(5,5,i)
+        pl.imshow(X[:,i].reshape(250,250), cmap="PuBu")
+        pl.axis("off")
+    fig.subplots_adjust(left=0.1, bottom=0.0, right=0.9, top=0.92, wspace=0.2, hspace=0.2)
+    pl.suptitle(name+" ensemble")
+    pl.show()
+    fig.savefig(name+".pdf", bbox_inches="tight")
