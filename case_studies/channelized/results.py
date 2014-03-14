@@ -19,13 +19,22 @@
 ## Created: 16 Feb 2014
 ## Author: Júlio Hoffimann Mendes
 
+import logging
 import numpy as np
 import pylab as pl
 import numpy.ma as ma
 from pyhum.plotting import *
 from pyhum.decomposition import KernelPCA
 
-# prior and posterior log-probabilities
+logging.basicConfig(level=logging.INFO,
+                    format="%(levelname)s:%(asctime)s: %(message)s",
+                    datefmt="%H:%M:%S")
+logger = logging.getLogger()
+
+#-----------------------------------------------------------
+
+logger.info("Plotting prior and posterior log-probabilities...")
+
 prior      = np.loadtxt("lnprob0001.dat")
 posterior  = np.loadtxt("lnprob1000.dat")
 
@@ -37,13 +46,19 @@ fig = plot_lnprob((prior, posterior))
 pl.show()
 fig.savefig("lnprob.pdf", bbox_inches="tight")
 
-# acceptance fraction for each walker
+#-----------------------------------------------------------
+
+logger.info("Plotting acceptance fraction for each walker...")
+
 acceptance = np.loadtxt("acceptance1000.dat")
 fig = plot_acceptance(acceptance)
 pl.show()
 fig.savefig("acceptance.pdf", bbox_inches="tight")
 
-# prior and posterior ensemble
+#-----------------------------------------------------------
+
+logger.info("Plotting prior and posterior ensemble... (be patient)")
+
 CSI = np.loadtxt("ensemble1000.dat")
 nsamples, ncomps = CSI.shape
 Xprior = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(nsamples))
@@ -61,7 +76,10 @@ for name, X in [("prior",Xprior),("posterior",Xpost)]:
     pl.show()
     fig.savefig(name+".pdf", bbox_inches="tight")
 
-# history for prior and posterior ensemble
+#-----------------------------------------------------------
+
+logger.info("Plotting history for prior and posterior ensemble...")
+
 nsteps, nwells = 20, 8
 Dprior = np.loadtxt("Dprior.dat")
 Dpost  = np.loadtxt("Dpost.dat")
@@ -78,6 +96,6 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
     fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
     fig.suptitle("history for "+name+" ensemble")
     fig.text(0.5, 0.02, "timestep", ha="center", va="center")
-    fig.text(0.015, 0.5, u"liquid production [m³/d]", ha="center", va="center", rotation="vertical")
+    fig.text(0.015, 0.5, u"production rate [m³/d]", ha="center", va="center", rotation="vertical")
     pl.show()
     fig.savefig("history_"+name+".pdf", bbox_inches="tight")
