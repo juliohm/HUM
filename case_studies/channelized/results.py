@@ -50,14 +50,34 @@ Xprior = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(ns
 kpca = KernelPCA(degree=4)
 kpca.train(Xprior, ncomps=ncomps)
 Xpost = kpca.predict(CSI.T)
-
-for name, X in {"prior":Xprior, "posterior":Xpost}.items():
+for name, X in [("prior",Xprior),("posterior",Xpost)]:
     fig = pl.figure()
     for i in xrange(25):
-        pl.subplot(5,5,i)
+        pl.subplot(5,5,i+1)
         pl.imshow(X[:,i].reshape(250,250), cmap="PuBu")
         pl.axis("off")
     fig.subplots_adjust(left=0.1, bottom=0.0, right=0.9, top=0.92, wspace=0.2, hspace=0.2)
-    pl.suptitle(name+" ensemble")
+    fig.suptitle(name+" ensemble")
     pl.show()
     fig.savefig(name+".pdf", bbox_inches="tight")
+
+# history for prior and posterior ensemble
+nsteps, nwells = 20, 8
+Dprior = np.loadtxt("Dprior.dat")
+Dpost  = np.loadtxt("Dpost.dat")
+dobs   = np.loadtxt("dobs.dat").reshape(20,8)
+for name, D in [("prior",Dprior),("posterior",Dpost)]:
+    fig = pl.figure()
+    for w in xrange(nwells):
+        pl.subplot(2,4,w+1)
+        for i in xrange(nsamples):
+            d = D[:,i].reshape(nsteps, nwells)
+            pl.plot(d[:,w], color="gray", linewidth=0.1)
+        pl.plot(dobs[:,w], color="red", linewidth=1, label="well %i" % (w+1))
+        pl.legend(loc="upper right", fontsize=8)
+    fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
+    fig.suptitle("history for "+name+" ensemble")
+    fig.text(0.5, 0.02, "timestep", ha="center", va="center")
+    fig.text(0.015, 0.5, u"liquid production [m³/d]", ha="center", va="center", rotation="vertical")
+    pl.show()
+    fig.savefig("history_"+name+".pdf", bbox_inches="tight")
