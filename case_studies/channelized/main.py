@@ -113,9 +113,13 @@ for i, (ensemble, logp, state) in enumerate(mcmc, 1):
     np.savetxt("lnprob{0:04d}.dat".format(i), logp)
     np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
 
+# G* = (G o m)(csi)
+def G_star(csi):
+    m = kpca.predict(csi)
+    return G(m)
+
 # evaluate forward operator on posterior ensemble and save results
-X = kpca.predict(ensemble.T)
-D = np.array(pool.map(G, [m for m in X.T])).T
+D = np.array(pool.map(G_star, [csi for csi in ensemble])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
