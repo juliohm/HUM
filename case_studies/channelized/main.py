@@ -114,7 +114,8 @@ for i, (ensemble, logp, state) in enumerate(mcmc, 1):
     np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
 
 # evaluate forward operator on posterior ensemble and save results
-D = np.array(pool.map(G, [m for m in ensemble])).T
+X = kpca.predict(ensemble.T)
+D = np.array(pool.map(G, [m for m in X.T])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
