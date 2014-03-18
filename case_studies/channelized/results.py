@@ -92,6 +92,7 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
             d = D[:,i].reshape(nsteps, nwells)
             pl.plot(d[:,w], color="gray", linewidth=0.1)
         pl.plot(dobs[:,w], color="red", linewidth=1, label="well %i" % (w+1))
+        pl.gca().set_ylim(235, 265)
         pl.legend(loc="upper right", fontsize=8)
     fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
     fig.suptitle("history for "+name+" ensemble")
