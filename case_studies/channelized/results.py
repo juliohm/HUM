@@ -101,3 +101,22 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
     fig.text(0.015, 0.5, u"production rate [m³/d]", ha="center", va="center", rotation="vertical")
     pl.show()
     fig.savefig("history_"+name+".pdf", bbox_inches="tight")
+
+#-----------------------------------------------------------
+
+logger.info("Plotting maximum a posteriori estimate...")
+
+mtrue = np.loadtxt("mtrue.dat", skiprows=22)
+mmap  = Xpost[:,idx[0]]
+
+fig = pl.figure()
+pl.subplot(121)
+pl.imshow(mtrue.reshape(250,250), cmap="PuBu")
+pl.axis("off")
+pl.title("true reservoir")
+pl.subplot(122)
+pl.imshow(mmap.reshape(250,250), cmap="PuBu")
+pl.axis("off")
+pl.title("MAP estimate")
+pl.show()
+fig.savefig("MAP.pdf", bbox_inches="tight")
