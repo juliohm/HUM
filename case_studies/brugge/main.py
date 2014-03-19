@@ -19,9 +19,9 @@
 ## Created: 10 Feb 2014
 ## Author: Júlio Hoffimann Mendes
 
+import emcee
 import numpy as np
 from scipy.stats import multivariate_normal
-import emcee
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
 from utils import IMEX
@@ -111,8 +111,13 @@ for i, t in enumerate(timesteps, 1):
         # wait from instructions from the master process
         pool.wait()
 
+# G* = (G o m)(csi)
+def G_star(csi):
+    m = kpca.predict(csi)
+    return G(m)
+
 # evaluate forward operator on posterior ensemble and save results
-D = np.array(pool.map(G, [m for m in ensemble])).T
+D = np.array(pool.map(G_star, [csi for csi in ensemble])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
