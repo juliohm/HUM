@@ -65,11 +65,12 @@ Xprior = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(ns
 kpca = KernelPCA(degree=4)
 kpca.train(Xprior, ncomps=ncomps)
 Xpost = kpca.predict(CSI.T)
+idx = np.argsort(posterior)[::-1]
 for name, X in [("prior",Xprior),("posterior",Xpost)]:
     fig = pl.figure()
     for i in xrange(25):
         pl.subplot(5,5,i+1)
-        pl.imshow(X[:,i].reshape(250,250), cmap="PuBu")
+        pl.imshow(X[:,idx[i]].reshape(250,250), cmap="PuBu")
         pl.axis("off")
     fig.subplots_adjust(left=0.1, bottom=0.0, right=0.9, top=0.92, wspace=0.2, hspace=0.2)
     fig.suptitle(name+" ensemble")
