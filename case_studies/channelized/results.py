@@ -38,10 +38,6 @@ logger.info("Plotting prior and posterior log-probabilities...")
 prior      = np.loadtxt("lnprob0001.dat")
 posterior  = np.loadtxt("lnprob1000.dat")
 
-# purge outliers
-prior      = ma.masked_less(prior, -2000).compressed()
-posterior  = ma.masked_less(posterior, -2000).compressed()
-
 fig = plot_lnprob((prior, posterior))
 pl.show()
 fig.savefig("lnprob.pdf", bbox_inches="tight")
