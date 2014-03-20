@@ -80,7 +80,8 @@ logger.info("Plotting history for prior and posterior ensemble...")
 nsteps, nwells = 20, 8
 Dprior = np.loadtxt("Dprior.dat")
 Dpost  = np.loadtxt("Dpost.dat")
-dobs   = np.loadtxt("dobs.dat").reshape(20,8)
+dobs   = np.loadtxt("dobs.dat").reshape(nsteps, nwells)
+dmap   = Dpost[:,idx[0]].reshape(nsteps, nwells)
 for name, D in [("prior",Dprior),("posterior",Dpost)]:
     fig = pl.figure()
     for w in xrange(nwells):
@@ -89,6 +90,8 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
             d = D[:,i].reshape(nsteps, nwells)
             pl.plot(d[:,w], color="gray", linewidth=0.1)
         pl.plot(dobs[:,w], color="red", linewidth=1, label="well %i" % (w+1))
+        if name == "posterior":
+            pl.plot(dmap[:,w], color="yellow", linewidth=1, label="MAP")
         pl.gca().set_ylim(235, 265)
         pl.legend(loc="upper right", fontsize=8)
     fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
