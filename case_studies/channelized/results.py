@@ -26,6 +26,10 @@ import numpy.ma as ma
 from pyhum.plotting import *
 from pyhum.decomposition import KernelPCA
 
+# make sure results are reproducible
+np.random.seed(2014)
+
+# logging settings
 logging.basicConfig(level=logging.INFO,
                     format="%(levelname)s:%(asctime)s: %(message)s",
                     datefmt="%H:%M:%S")
@@ -61,6 +65,7 @@ Xprior = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(ns
 kpca = KernelPCA(degree=4)
 kpca.train(Xprior, ncomps=ncomps)
 Xpost = kpca.predict(CSI.T)
+Xpost = kpca.denoise(Xpost)
 idx = np.argsort(posterior)[::-1]
 for name, X in [("prior",Xprior),("posterior",Xpost)]:
     fig = pl.figure()
@@ -105,17 +110,36 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
 
 logger.info("Plotting maximum a posteriori estimate...")
 
-mtrue = np.loadtxt("mtrue.dat", skiprows=22)
-mmap  = Xpost[:,idx[0]]
+mtrue = np.loadtxt("mtrue.dat", skiprows=22).reshape(250,250)
+mmap  = Xpost[:,idx[0]].reshape(250,250)
 
 fig = pl.figure()
 pl.subplot(121)
-pl.imshow(mtrue.reshape(250,250), cmap="PuBu")
+pl.imshow(mtrue, cmap="PuBu")
 pl.axis("off")
 pl.title("true reservoir")
 pl.subplot(122)
-pl.imshow(mmap.reshape(250,250), cmap="PuBu")
+pl.imshow(mmap, cmap="PuBu")
 pl.axis("off")
 pl.title("MAP estimate")
 pl.show()
 fig.savefig("MAP.pdf", bbox_inches="tight")
+
+#-----------------------------------------------------------
+
+try:
+    import pandas as pd
+    from skimage.measure import structural_similarity
+
+    logger.info("Computing structural similarity statistics...")
+
+    ssim = np.empty(25)
+    for name, X in [("prior",Xprior),("posterior",Xpost)]:
+        for i in xrange(25):
+            ssim[i] = structural_similarity(mtrue, X[:,idx[i]].reshape(250,250), win_size=7)
+        ssim = pd.Series(ssim)
+        print "==> " + name + " SSIM statistics:", ssim.describe().to_string()
+        print "interquartile range:", ssim.quantile(0.75) - ssim.quantile(0.25)
+    print "SSIM index for MAP estimate:", structural_similarity(mtrue, mmap, win_size=7)
+except ImportError:
+    print "Consider installing scikit-image and pandas for SSIM statistics."
