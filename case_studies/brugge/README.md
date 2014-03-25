@@ -23,3 +23,9 @@ Run the study with, for instance:
 ```
 mpirun -np 100 python main.py
 ```
+
+and check the results:
+
+```
+python results.py
+```
