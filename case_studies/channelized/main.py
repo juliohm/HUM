@@ -19,9 +19,9 @@
 ## Created: 26 Dec 2013
 ## Author: Júlio Hoffimann Mendes
 
-import sys
 import emcee
 import numpy as np
+from mpi4py import MPI
 from scipy.stats import multivariate_normal
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
@@ -89,29 +89,35 @@ def filtersim_proposal(CSI):
     X = filtersim(nsamples)
     return kpca.featurize(X).T
 
-# wait for instructions from the master process
-if not pool.is_master():
+if pool.is_master():
+    ### There are three possible configurations:
+
+    # a) (symmetric) stretch move
+    #sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
+    #mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False)
+
+    # b) KDE move
+    sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
+    mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=kde_proposal)
+
+    # c) Filtersim move
+    #sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
+    #mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=filtersim_proposal)
+
+    for i, (ensemble, logp, state) in enumerate(mcmc, 1):
+        np.savetxt("ensemble{0:04d}.dat".format(i), ensemble)
+        np.savetxt("lnprob{0:04d}.dat".format(i), logp)
+        np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
+
+    # tell slaves to proceed
+    pool.close()
+else:
+    # create dummy variable and wait for instructions
+    ensemble = None
     pool.wait()
-    sys.exit()
 
-### There are three possible configurations:
-
-# a) (symmetric) stretch move
-#sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
-#mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False)
-
-# b) KDE move
-sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
-mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=kde_proposal)
-
-# c) Filtersim move
-#sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
-#mcmc = sampler.sample(CSI.T, iterations=1000, storechain=False, mh_proposal=filtersim_proposal)
-
-for i, (ensemble, logp, state) in enumerate(mcmc, 1):
-    np.savetxt("ensemble{0:04d}.dat".format(i), ensemble)
-    np.savetxt("lnprob{0:04d}.dat".format(i), logp)
-    np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
+# broadcast last ensemble
+CSI = MPI.COMM_WORLD.bcast(ensemble)
 
 # G* = (G o m)(csi)
 def G_star(csi):
@@ -119,7 +125,7 @@ def G_star(csi):
     return G(m)
 
 # evaluate forward operator on posterior ensemble and save results
-D = np.array(pool.map(G_star, [csi for csi in ensemble])).T
+D = np.array(pool.map(G_star, [csi for csi in CSI])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
