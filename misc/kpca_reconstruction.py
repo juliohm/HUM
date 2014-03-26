@@ -23,6 +23,9 @@ import numpy as np
 import pylab as pl
 from pyhum.decomposition import KernelPCA
 
+# make sure results are reproducible
+np.random.seed(2014)
+
 # load ensemble from disk (nfeatures x nsamples)
 X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(100))
 
@@ -33,6 +36,7 @@ ncomps = kpca.train(X, ncomps=50)
 # featurize and reconstruct
 CSI  = kpca.featurize(X)
 Xnew = kpca.predict(CSI)
+Xnew = kpca.denoise(Xnew)
 
 fig = pl.figure()
 
