@@ -21,6 +21,7 @@
 
 import emcee
 import numpy as np
+from mpi4py import MPI
 from scipy.stats import multivariate_normal
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
@@ -108,8 +109,12 @@ for i, t in enumerate(timesteps, 1):
         # we're done with this timestep, tell slaves to proceed
         pool.close()
     else:
-        # wait from instructions from the master process
+        # create dummy variable and wait for instructions
+        ensemble = None
         pool.wait()
+
+# broadcast last ensemble
+CSI = MPI.COMM_WORLD.bcast(ensemble)
 
 # G* = (G o m)(csi)
 def G_star(csi):
@@ -117,7 +122,7 @@ def G_star(csi):
     return G(m)
 
 # evaluate forward operator on posterior ensemble and save results
-D = np.array(pool.map(G_star, [csi for csi in ensemble])).T
+D = np.array(pool.map(G_star, [csi for csi in CSI])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
