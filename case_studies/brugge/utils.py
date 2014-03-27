@@ -96,20 +96,20 @@ def IMEX(m, timestep=None):
         proc.wait() # wait for IMEX exit code
         if proc.returncode == 0:
             check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
+
+            # oil rate SC for all 20 producer wells
+            history = np.loadtxt(cmgfile.rwo, skiprows=6, ndmin=2)
+            ns, nw = history.shape
+
+            # fix history in case of premature termination
+            if ns < nsteps:
+                history = np.concatenate((history, np.zeros([nsteps-ns, nwells])))
+
+            # clean up
+            for filename in cmgfile:
+                remove(filename)
         else:
-            # create dummy *.rwo file
-            np.savetxt(cmgfile.rwo, np.zeros([1,nwells]), header="\n"*5)
-
-    # oil rate SC for all 20 producer wells
-    history = np.loadtxt(cmgfile.rwo, skiprows=6, ndmin=2)
-    ns, nw = history.shape
-
-    # fix history in case of premature/abnormal termination
-    if ns < nsteps:
-        history = np.concatenate((history, np.zeros([nsteps-ns, nwells])))
-
-    # clean up
-    for filename in cmgfile:
-        remove(filename)
+            # nullify history in case of abnormal termination
+            history = np.zeros([nsteps, nwells])
 
     return history.flatten() if timestep is None else history[timestep,:].flatten()
