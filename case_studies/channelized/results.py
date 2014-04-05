@@ -22,7 +22,6 @@
 import logging
 import numpy as np
 import pylab as pl
-import numpy.ma as ma
 from pyhum.plotting import *
 from pyhum.decomposition import KernelPCA
 
