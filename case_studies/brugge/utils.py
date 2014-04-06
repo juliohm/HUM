@@ -104,12 +104,13 @@ def IMEX(m, timestep=None):
             # fix history in case of premature termination
             if ns < nsteps:
                 history = np.concatenate((history, np.zeros([nsteps-ns, nwells])))
-
-            # clean up
-            for filename in cmgfile:
-                remove(filename)
         else:
             # nullify history in case of abnormal termination
             history = np.zeros([nsteps, nwells])
+
+    # clean up
+    for filename in cmgfile:
+        try: remove(filename)
+        except OSError: continue
 
     return history.flatten() if timestep is None else history[timestep,:].flatten()
