@@ -98,9 +98,9 @@ for i, t in enumerate(timesteps, 1):
         mcmc = sampler.sample(CSI.T, iterations=100, storechain=False, mh_proposal=kde_proposal)
 
         for j, (ensemble, logp, state) in enumerate(mcmc, 1):
-            np.savetxt("ensemble{0:03d}-{0:03d}.dat".format(i,j), ensemble)
-            np.savetxt("lnprob{0:03d}-{0:03d}.dat".format(i,j), logp)
-            np.savetxt("acceptance{0:03d}-{0:03d}.dat".format(i,j), sampler.acceptance_fraction)
+            np.savetxt("ensemble{0:03d}-{1:03d}.dat".format(i,j), ensemble)
+            np.savetxt("lnprob{0:03d}-{1:03d}.dat".format(i,j), logp)
+            np.savetxt("acceptance{0:03d}-{1:03d}.dat".format(i,j), sampler.acceptance_fraction)
 
         # update prior with posterior
         mprior = Nonparametric(ensemble)
