@@ -84,7 +84,7 @@ def IMEX(m, timestep=None):
 
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
-        proc = Popen(["RunSim.sh", "imex", "2012.10", cmgfile.dat, "-log", "-wait", "-dd"], stdout=log)
+        proc = Popen(["mx201210.exe", "-f", cmgfile.dat, "-log", "-wait", "-dd"], stdout=log)
 
         start = time()
         while proc.poll() is None: # IMEX still running?
