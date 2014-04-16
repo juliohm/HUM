@@ -37,12 +37,9 @@
 #include <opm/core/pressure/FlowBCManager.hpp>
 #include <opm/core/props/IncompPropertiesBasic.hpp>
 #include <opm/core/props/IncompPropertiesShadow.hpp>
-
 #include <opm/core/transport/reorder/TransportSolverTwophaseReorder.hpp>
-
 #include <opm/core/simulator/TwophaseState.hpp>
 #include <opm/core/simulator/WellState.hpp>
-
 #include <opm/core/utility/miscUtilities.hpp>
 #include <opm/core/utility/Units.hpp>
 #include <opm/core/wells/WellCollection.hpp>
