@@ -30,8 +30,8 @@ from utils import IMEX
 # make sure results are reproducible
 np.random.seed(2014)
 
-# initialize the MPI-based pool
-pool = emcee.utils.MPIPool()
+# MPI-based pool with dynamic load balancing
+pool = emcee.utils.MPIPool(loadbalance=True)
 
 # forward operator d = G(m)
 G = IMEX
