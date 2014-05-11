@@ -67,7 +67,7 @@ class MPIPool(object):
         """
         Make the workers listen to the master.
         """
-        if not self.is_worker(): return
+        if self.is_master(): return
         worker = self.comm.rank
         status = MPI.Status()
         while True:
