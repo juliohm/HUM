@@ -63,13 +63,6 @@ class MPIPool(object):
         return self.comm.rank == self.master
 
 
-    def is_worker(self):
-        """
-        Returns true if *not* on the master process, false otherwise.
-        """
-        return not self.is_master()
-
-
     def wait(self):
         """
         Make the workers listen to the master.
