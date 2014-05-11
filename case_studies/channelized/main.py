@@ -21,17 +21,17 @@
 
 import emcee
 import numpy as np
-from mpi4py import MPI
 from scipy.stats import multivariate_normal
 from pyhum.decomposition import KernelPCA
 from pyhum.distribution import Nonparametric
+from pyhum.utils import MPIPool
 from utils import filtersim, OPMSimulator
 
 # make sure results are reproducible
 np.random.seed(2014)
 
 # initialize the MPI-based pool
-pool = emcee.utils.MPIPool()
+pool = MPIPool()
 
 # forward operator d = G(m)
 G = OPMSimulator
@@ -52,13 +52,14 @@ ncomps, nsamples = 50, 100
 # initial ensemble from disk (nfeatures x nsamples)
 X = np.loadtxt("ensemble.csv", delimiter=",", skiprows=1, usecols=xrange(nsamples))
 
+pool.wait()
+
 # evaluate forward operator on prior ensemble and save results
-D = np.array(pool.map(G, [m for m in X.T])).T
 if pool.is_master():
+    D = np.array(pool.map(G, [m for m in X.T])).T
     np.savetxt("Dprior.dat", D)
 
-# tell slaves to proceed
-pool.close()
+pool.proceed()
 
 # ensemble in feature space (ncomps << nfeatures)
 kpca = KernelPCA(degree=4)
@@ -110,23 +111,21 @@ if pool.is_master():
         np.savetxt("acceptance{0:04d}.dat".format(i), sampler.acceptance_fraction)
 
     # tell slaves to proceed
-    pool.close()
+    pool.proceed()
 else:
-    # create dummy variable and wait for instructions
-    ensemble = None
+    # wait for instructions
     pool.wait()
-
-# broadcast last ensemble
-CSI = MPI.COMM_WORLD.bcast(ensemble)
 
 # G* = (G o m)(csi)
 def G_star(csi):
     m = kpca.predict(csi)
     return G(m)
 
+pool.wait()
+
 # evaluate forward operator on posterior ensemble and save results
 D = np.array(pool.map(G_star, [csi for csi in CSI])).T
 if pool.is_master():
     np.savetxt("Dpost.dat", D)
 
-pool.close()
+pool.proceed()
