@@ -114,7 +114,7 @@ class KernelPCA(object):
         # all eigenvalues are nonnegative.
         if ncomps is None and energy is not None:
             # retain eigenvalues till reach specified energy level
-            assert 0 < energy and energy <= 1, "energy must be in range (0,1]"
+            assert 0 < energy <= 1, "energy must be in range (0,1]"
             lambdas, V = eigh(K, overwrite_a=True)
 
             levels = np.cumsum(np.flipud(lambdas)) / sum(lambdas)
@@ -124,7 +124,7 @@ class KernelPCA(object):
             V = V[:,-ncomps:]
         elif ncomps is not None and energy is None:
             # retain the desired number of components
-            assert 0 < ncomps and ncomps <= m, "ncomps must be in range (0,nsamples]"
+            assert 0 < ncomps <= m, "ncomps must be in range (0,nsamples]"
             lambdas, V = eigh(K, overwrite_a=True, eigvals=(m-ncomps,m-1))
         else:
             raise TypeError("Exactly one of 'ncomps' and 'energy' arguments must be specified")
