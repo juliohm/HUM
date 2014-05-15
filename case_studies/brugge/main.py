@@ -69,23 +69,24 @@ def kde_proposal(CSI):
     return mprior.sample(n_samples=nsamples)
 
 # chosen timesteps for Bayesian inference
-timesteps = np.array([37, 59, 71, 83, 101, 107, 111, 113, 119, 122]) - 1 # for 0-indexing
+from utils import alltimes
+timesteps = [1082, 1751, 2116, 2481, 3029, 3211, 3333, 3394, 3576, 3651]
 measurements = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(33,53))
 
 # history-based uncertainty mitigation
 for i, t in enumerate(timesteps, 1):
-    dobs = measurements[t,:]
+    dobs = measurements[alltimes==t,:].flatten()
     dprior = multivariate_normal(mean=dobs, cov=.1)
 
     # likelihood under perfect forwarding assumption
     def lnlike(csi):
         m = kpca.predict(csi).clip(0, 1)
-        return dprior.logpdf(G(m, t))
+        return dprior.logpdf(G(m, [t]))
 
     # posterior sigma_m(m) ~ rho_d(G(m)) * rho_m(m)
     def lnprob(csi):
         m = kpca.predict(csi).clip(0, 1)
-        return mprior.logpdf(csi) + dprior.logpdf(G(m, t))
+        return mprior.logpdf(csi) + dprior.logpdf(G(m, [t]))
 
     if pool.is_master():
         ### There are two possible configurations:

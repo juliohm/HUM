@@ -43,8 +43,10 @@ def CMGFile(basename):
                      basename+"-kx.inc",
                      basename+"-kz.inc")
 
+# all timesteps for which there are measurements
+alltimes = np.loadtxt("observation.csv", skiprows=2, usecols=[0])
 
-def IMEX(m, timestep=None):
+def IMEX(m, timesteps=alltimes):
     """
     IMEX reservoir simulator
 
@@ -76,11 +78,11 @@ def IMEX(m, timestep=None):
     # create *.rwd from report.tmpl
     with open("report.tmpl", "r") as tmpl, open(cmgfile.rwd, "w") as rwd:
         t = Template(tmpl.read())
-        content = t.substitute(IRFFILE=cmgfile.irf)
+        content = t.substitute(IRFFILE=cmgfile.irf, TIMESTEPS=" ".join(str(step) for step in timesteps))
         rwd.write(content)
 
     # hardcode history shape
-    nsteps, nwells = 122, 20
+    nsteps, nwells = len(timesteps), 20
 
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
@@ -113,4 +115,4 @@ def IMEX(m, timestep=None):
         try: remove(filename)
         except OSError: continue
 
-    return history.flatten() if timestep is None else history[timestep,:].flatten()
+    return history.flatten()
