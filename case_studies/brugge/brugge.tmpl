@@ -28,12 +28,12 @@ OUTSRF GRID SW SO PRES KRO KRW SWCON SWCRIT SOIRW SORW KRSETN PCOW
 **  Distance units: m
 
 RESULTS AXES-DIRECTIONS 1. 1. 1.
-*INCLUDE 'brugge_grid.inc'
+*INCLUDE '$GRID_INC'
 
-*INCLUDE 'null.inc'
+*INCLUDE '$NULL_INC'
 
 ** Porosity
-*INCLUDE '$POROSITY_INC'
+*INCLUDE '$PORO_INC'
 
 ** Horizontal permeability
 *INCLUDE '$PERMI_INC'
@@ -44,7 +44,7 @@ PERMJ EQUALSI
 *INCLUDE '$PERMK_INC'
 
 ** Net-to-gross ratio
-*INCLUDE 'prior/NETGROSS_001.inc'
+*INCLUDE '$NET_INC'
 
 PRPOR 173.352
 CPOR 4.9878e-5
@@ -99,7 +99,7 @@ SOIRW  CON 0.0
 KRWIRO CON 1.0
 
 ** Connate water saturation
-*INCLUDE 'prior/SWCON_001.inc'
+*INCLUDE '$SW_INC'
 
 INITIAL
 VERTICAL DEPTH_AVE WATER_OIL EQUIL
@@ -988,6 +988,6 @@ SHUTIN 'BR-P-20'
 
 DTWELL 0.1
 
-*INCLUDE 'well_operation.inc'
+*INCLUDE '$WELL_INC'
 
 STOP

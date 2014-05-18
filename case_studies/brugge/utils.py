@@ -19,18 +19,28 @@
 ## Created: 11 Feb 2014
 ## Author: Júlio Hoffimann Mendes
 
+import re
 import numpy as np
-from os import remove
 from time import time, sleep
+from socket import gethostname
+from os import remove, getcwd, getenv, path
 from subprocess import Popen, check_call
 from collections import namedtuple
 from string import Template
 from mpi4py import MPI
 
+# IMEX work directory
+workdir = getcwd()
+
 def CMGFile(basename):
     """
     A simple wrapper for retrieving CMG file extensions given the basename.
     """
+    # If on CENEPAD-PE cluster, avoid expensive I/O file transfers by
+    # writing into the appropriate directory for this computational node.
+    if re.match("super\d+", gethostname()):
+        prefix = "/var/tmp/" + getenv("SLURM_JOB_ID")
+        basename = path.join(prefix, basename)
     Extension = namedtuple("Extension", "dat out irf mrf rwd rwo log poro permx permz")
     return Extension(basename+".dat",
                      basename+".out",
@@ -72,7 +82,14 @@ def IMEX(m, timesteps=alltimes):
     # create *.dat from brugge.tmpl
     with open("brugge.tmpl", "r") as tmpl, open(cmgfile.dat, "w") as dat:
         t = Template(tmpl.read())
-        content = t.substitute(POROSITY_INC=cmgfile.poro, PERMI_INC=cmgfile.permx, PERMK_INC=cmgfile.permz)
+        content = t.substitute(PORO_INC  = cmgfile.poro,
+                               PERMI_INC = cmgfile.permx,
+                               PERMK_INC = cmgfile.permz,
+                               NET_INC   = path.join(workdir,"prior/NETGROSS_mean.inc"),
+                               SW_INC    = path.join(workdir,"prior/SWCON_mean.inc"),
+                               GRID_INC  = path.join(workdir,"brugge_grid.inc"),
+                               NULL_INC  = path.join(workdir,"null.inc"),
+                               WELL_INC  = path.join(workdir,"well_operation.inc"))
         dat.write(content)
 
     # create *.rwd from report.tmpl
