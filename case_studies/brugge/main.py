@@ -71,7 +71,7 @@ def kde_proposal(CSI):
 # chosen timesteps for Bayesian inference
 from utils import alltimes
 timesteps = [1082, 1751, 2116, 2481, 3029, 3211, 3333, 3394, 3576, 3651]
-history = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(33,53))
+history = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(32,52))
 
 # history-based uncertainty mitigation
 for i, t in enumerate(timesteps, 1):
