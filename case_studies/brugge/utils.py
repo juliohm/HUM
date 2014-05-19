@@ -117,7 +117,7 @@ def IMEX(m, timesteps=alltimes):
             check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
 
             # oil rate SC for all 20 producer wells
-            history = np.loadtxt(cmgfile.rwo, skiprows=6, ndmin=2)
+            history = np.loadtxt(cmgfile.rwo, skiprows=6, usecols=[0,11]+range(13,20)+range(1,11)+[12])
             ns, nw = history.shape
 
             # fix history in case of premature termination
