@@ -21,7 +21,6 @@
 
 import re
 import numpy as np
-from time import time, sleep
 from socket import gethostname
 from os import remove, getcwd, getenv, path
 from subprocess import Popen, check_call
@@ -104,13 +103,6 @@ def IMEX(m, timesteps=alltimes):
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
         proc = Popen(["mx201210.exe", "-f", cmgfile.dat, "-log", "-wait", "-dd"], stdout=log)
-
-        start = time()
-        while proc.poll() is None: # IMEX still running?
-            if time() - start > 300: # 5min timeout
-                proc.kill()
-                break
-            sleep(10)
 
         proc.wait() # wait for IMEX exit code
         if proc.returncode == 0:
