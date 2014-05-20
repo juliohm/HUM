@@ -68,9 +68,8 @@ mprior = Nonparametric(CSI.T)
 def kde_proposal(CSI):
     return mprior.sample(n_samples=nsamples)
 
-# chosen timesteps for Bayesian inference
 from utils import alltimes
-timesteps = [1082, 1751, 2116, 2481, 3029, 3211, 3333, 3394, 3576, 3651]
+timesteps = [1812, 2421, 3029] # chosen timesteps for Bayesian inference
 history = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(32,52))
 
 # history-based uncertainty mitigation
@@ -93,11 +92,11 @@ for i, t in enumerate(timesteps, 1):
 
         # a) (symmetric) stretch move
         #sampler = emcee.EnsembleSampler(nsamples, ncomps, lnprob, pool=pool, live_dangerously=True)
-        #mcmc = sampler.sample(CSI.T, iterations=100, storechain=False)
+        #mcmc = sampler.sample(CSI.T, iterations=10, storechain=False)
 
         # b) KDE move
         sampler = emcee.EnsembleSampler(nsamples, ncomps, lnlike, pool=pool, live_dangerously=True)
-        mcmc = sampler.sample(CSI.T, iterations=100, storechain=False, mh_proposal=kde_proposal)
+        mcmc = sampler.sample(CSI.T, iterations=10, storechain=False, mh_proposal=kde_proposal)
 
         for j, (ensemble, logp, state) in enumerate(mcmc, 1):
             np.savetxt("ensemble{0:03d}-{1:03d}.dat".format(i,j), ensemble)
