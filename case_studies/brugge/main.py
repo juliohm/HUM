@@ -68,9 +68,8 @@ mprior = Nonparametric(CSI.T)
 def kde_proposal(CSI):
     return mprior.sample(n_samples=nsamples)
 
-from utils import alltimes
+from utils import alltimes, history
 timesteps = [1812, 2421, 3029] # chosen timesteps for Bayesian inference
-history = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(32,52))
 
 # history-based uncertainty mitigation
 for i, t in enumerate(timesteps, 1):

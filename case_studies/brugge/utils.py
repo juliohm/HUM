@@ -54,6 +54,7 @@ def CMGFile(basename):
 
 # all timesteps for which there are measurements
 alltimes = np.loadtxt("observation.csv", skiprows=2, usecols=[0])
+history  = np.loadtxt("observation.csv", skiprows=2, usecols=xrange(32,52))
 
 def IMEX(m, timesteps=alltimes):
     """
