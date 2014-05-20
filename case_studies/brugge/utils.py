@@ -97,22 +97,21 @@ def IMEX(m, timesteps=alltimes):
         content = t.substitute(IRFFILE=cmgfile.irf, TIMESTEPS=" ".join(str(step) for step in timesteps))
         rwd.write(content)
 
-    # hardcode history shape
-    nsteps, nwells = len(timesteps), 20
-
     # call IMEX + Results Report
     with open(cmgfile.log, "w") as log:
         proc = Popen(["mx201210.exe", "-f", cmgfile.dat, "-log", "-wait", "-dd"], stdout=log)
-
         proc.wait() # wait for IMEX exit code
-        if proc.returncode == 0:
-            check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
 
-            # oil rate SC for all 20 producer wells
-            history = np.loadtxt(cmgfile.rwo, skiprows=6, usecols=[0,11]+range(13,20)+range(1,11)+[12])
+        # columns in output spreadsheet (lexicographic order)
+        wells = [0,11] + range(13,20) + range(1,11) + [12]
+
+        if proc.returncode == 0:
+            # get oil rate SC for all 20 producer wells
+            check_call(["report.exe", "-f", cmgfile.rwd, "-o", cmgfile.rwo], stdout=log)
+            history = np.loadtxt(cmgfile.rwo, skiprows=6, usecols=wells)
         else:
-            # nullify history in case of abnormal termination
-            history = np.zeros([nsteps, nwells])
+            # IMEX has failed, nullify history
+            history = np.zeros([len(timesteps), len(wells)])
 
     # clean up
     for filename in cmgfile:
