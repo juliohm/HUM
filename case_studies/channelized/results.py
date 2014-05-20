@@ -38,12 +38,10 @@ logger = logging.getLogger()
 
 logger.info("Plotting prior and posterior log-probabilities...")
 
-prior      = np.loadtxt("lnprob0001.dat")
-posterior  = np.loadtxt("lnprob1000.dat")
-
+prior     = np.loadtxt("lnprob0001.dat")
+posterior = np.loadtxt("lnprob1000.dat")
 fig = plot_lnprob((prior, posterior))
-pl.show()
-fig.savefig("lnprob.pdf", bbox_inches="tight")
+pl.show(); fig.savefig("lnprob.pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 
@@ -51,8 +49,7 @@ logger.info("Plotting acceptance fraction for each walker...")
 
 acceptance = np.loadtxt("acceptance1000.dat")
 fig = plot_acceptance(acceptance)
-pl.show()
-fig.savefig("acceptance.pdf", bbox_inches="tight")
+pl.show(); fig.savefig("acceptance.pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 
@@ -74,8 +71,7 @@ for name, X in [("prior",Xprior),("posterior",Xpost)]:
         pl.axis("off")
     fig.subplots_adjust(left=0.1, bottom=0.0, right=0.9, top=0.92, wspace=0.2, hspace=0.2)
     fig.suptitle(name+" ensemble")
-    pl.show()
-    fig.savefig(name+".pdf", bbox_inches="tight")
+    pl.show(); fig.savefig(name+".pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 
@@ -96,14 +92,14 @@ for name, D in [("prior",Dprior),("posterior",Dpost)]:
         pl.plot(dobs[:,w], color="red", linewidth=1, label="well %i" % (w+1))
         if name == "posterior":
             pl.plot(dmap[:,w], color="yellow", linewidth=1, label="MAP")
+        pl.gca().set_xlim(0, nsteps)
         pl.gca().set_ylim(235, 265)
         pl.legend(loc="upper right", fontsize=8)
     fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
     fig.suptitle("history for "+name+" ensemble")
     fig.text(0.5, 0.02, "timestep", ha="center", va="center")
     fig.text(0.015, 0.5, u"production rate [m³/d]", ha="center", va="center", rotation="vertical")
-    pl.show()
-    fig.savefig("history_"+name+".pdf", bbox_inches="tight")
+    pl.show(); fig.savefig("history_"+name+".pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 
@@ -111,7 +107,6 @@ logger.info("Plotting maximum a posteriori estimate...")
 
 mtrue = np.loadtxt("mtrue.dat", skiprows=22).reshape(250,250)
 mmap  = Xpost[:,idx[0]].reshape(250,250)
-
 fig = pl.figure()
 pl.subplot(121)
 pl.imshow(mtrue, cmap="PuBu")
@@ -121,8 +116,7 @@ pl.subplot(122)
 pl.imshow(mmap, cmap="PuBu")
 pl.axis("off")
 pl.title("MAP estimate")
-pl.show()
-fig.savefig("MAP.pdf", bbox_inches="tight")
+pl.show(); fig.savefig("MAP.pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 

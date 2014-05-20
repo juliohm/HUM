@@ -38,18 +38,50 @@ logger = logging.getLogger()
 
 logger.info("Plotting prior and posterior log-probabilities...")
 
-prior      = np.loadtxt("lnprob001-001.dat")
-posterior  = np.loadtxt("lnprob010-100.dat")
-
+prior     = np.loadtxt("lnprob001-001.dat")
+posterior = np.loadtxt("lnprob003-010.dat")
 fig = plot_lnprob((prior, posterior))
-pl.show()
-fig.savefig("lnprob.pdf", bbox_inches="tight")
+pl.show(); fig.savefig("lnprob.pdf", bbox_inches="tight")
 
 #-----------------------------------------------------------
 
 logger.info("Plotting acceptance fraction for each walker...")
 
-acceptance = np.loadtxt("acceptance010-100.dat")
+acceptance = np.loadtxt("acceptance003-010.dat")
 fig = plot_acceptance(acceptance)
-pl.show()
-fig.savefig("acceptance.pdf", bbox_inches="tight")
+pl.show(); fig.savefig("acceptance.pdf", bbox_inches="tight")
+
+#-----------------------------------------------------------
+
+logger.info("Plotting history for prior and posterior ensemble...")
+
+idx = np.argsort(posterior)[::-1]
+
+# list of wells to plot (up to 8 wells)
+wells  = np.arange(1, 9) - 1 # BR-P-1 = 0, BR-P-2 = 1, ...
+
+from utils import history
+CSI = np.loadtxt("ensemble003-010.dat")
+nsteps, nwells = history.shape
+nsamples, ncomps = CSI.shape
+Dprior = np.loadtxt("Dprior.dat")
+Dpost  = np.loadtxt("Dpost.dat")
+dobs   = history
+dmap   = Dpost[:,idx[0]].reshape(nsteps, nwells)
+for name, D in [("prior",Dprior),("posterior",Dpost)]:
+    fig = pl.figure()
+    for plotid, w in enumerate(wells, 1):
+        pl.subplot(2,4,plotid)
+        for i in xrange(nsamples):
+            d = D[:,i].reshape(nsteps, nwells)
+            pl.plot(d[:,w], color="gray", linewidth=0.1)
+        pl.plot(dobs[:,w], color="red", linewidth=1, label="BR-P-%i" % (w+1))
+        if name == "posterior":
+            pl.plot(dmap[:,w], color="yellow", linewidth=1, label="MAP")
+        pl.gca().set_xlim(0, nsteps)
+        pl.legend(loc="upper right", fontsize=8)
+    fig.subplots_adjust(left=0.06, bottom=0.08, right=0.98, top=0.92, wspace=0.24, hspace=0.2)
+    fig.suptitle("history for "+name+" ensemble")
+    fig.text(0.5, 0.02, "timestep", ha="center", va="center")
+    fig.text(0.015, 0.5, u"production rate [m³/d]", ha="center", va="center", rotation="vertical")
+    pl.show(); fig.savefig("history_"+name+".pdf", bbox_inches="tight")
