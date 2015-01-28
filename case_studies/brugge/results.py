@@ -58,7 +58,7 @@ logger.info("Plotting history for prior and posterior ensemble...")
 idx = np.argsort(posterior)[::-1]
 
 # list of wells to plot (up to 8 wells)
-wells  = np.arange(1, 9) - 1 # BR-P-1 = 0, BR-P-2 = 1, ...
+wells  = np.arange(8) # BR-P-1 = 0, BR-P-2 = 1, ...
 
 from utils import history
 CSI = np.loadtxt("ensemble003-010.dat")
