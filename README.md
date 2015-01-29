@@ -35,4 +35,4 @@ export PYTHONPATH=$PYTHONPATH:/home/julio/HUM
 REFERENCES
 ----------
 
-In the dissertation to be put online soon...
+The Inverse Problem of History Matching - A Probabilistic Framework for Reservoir Characterization and Real Time Updating [[DOWNLOAD](https://www.researchgate.net/publication/271507123_The_Inverse_Problem_of_History_Matching_-_A_Probabilistic_Framework_for_Reservoir_Characterization_and_Real_Time_Updating)]
