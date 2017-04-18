@@ -11,7 +11,7 @@ dissertation entitled
 Reservoir Characterization and Real Time Updating*.
 It's made available under the [GPLv3 license](LICENSE).
 
-For any questions or suggestions, please contact [Júlio Hoffimann](mailto:julio.hoffimann@ufpe.br).
+For any questions or suggestions, please open an issue.
 
 Dependencies
 ------------
